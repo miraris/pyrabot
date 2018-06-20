@@ -8,7 +8,7 @@ const url = common+process.env.URL1;
 const url2 = common+process.env.URL2;
 const url3 = common+process.env.URL3;
 
-var taken = {}; //{"3405989": {pic: x.jpg, rolls: 10}, ..}
+var taken = {}; //{"3405989": "example/url/pic.jpg"}, ..}
 var opt = [];
 var opt2 = [];
 var opt3 = [];
