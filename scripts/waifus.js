@@ -35,7 +35,14 @@ function waifu(message) {
         return message.author.username+" does not have enough "+u.currency()+" to roll a new waifu!";
     } else {
         let choice = random(opt);
-        taken[message.author.id.toString()] = choice;
+
+        if (choice.includes(url)) 
+            taken[message.author.id.toString()] = {folder: "url1", pic: choice.replace(url,"")};
+        else if (choice.includes(url2)) 
+            taken[message.author.id.toString()] = {folder: "url2", pic: choice.replace(url2,"")};
+        else
+            taken[message.author.id.toString()] = {folder: "url3", pic: choice.replace(url3,"")};
+
         for (let x=0;x<opt.length;x++) {
             if (opt[x] == choice) opt.splice(x,1);
         }
@@ -51,7 +58,7 @@ function waifu(message) {
 }
 
 function show(message) {
-    if (!message.channel.name.startsWith("nsfw-")) {
+    if (!message.channel.nsfw) {
         return "Please only use '$show waifu' in nsfw rooms!";
     }
     else if (!taken[message.author.id.toString()])
@@ -62,7 +69,16 @@ function show(message) {
         .setFooter(message.author.username+"'s waifu", message.author.avatarURL)
         .setImage("attachment://image.png");
 
-        return {embed, files: [{ attachment: taken[message.author.id.toString()], name: 'image.png' }]};
+        let link;
+        if (taken[message.author.id.toString()].folder == "url1") {
+            link = url+taken[message.author.id.toString()].pic;
+        } else if (taken[message.author.id.toString()].folder == "url2") {
+            link = url2+taken[message.author.id.toString()].pic;
+        } else {
+            link = url3+taken[message.author.id.toString()].pic;
+        }
+
+        return {embed, files: [{ attachment: link, name: 'image.png' }]};
     }
 }
 
