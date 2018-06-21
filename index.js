@@ -18,7 +18,7 @@ const bot = new discord.Client();
 bot.login(bottoken);
 
 bot.on('ready', () => {
-  bot.user.setPresence({game: {name: "Cosplaying Cleverbot ($help)"}, status: "dnd"});
+  bot.user.setPresence({game: {name: "Cinnamon roll bot"}, status: "dnd"});
   console.log('Bot is up.');
 })
 
@@ -30,10 +30,13 @@ bot.on('message', (message) => {
 
     s.learn(cmd);
     c.gencurrency(message);
+    w.update(message);
 
     //cmds with args
     if (cmd.startsWith(p+"gamble")) message.channel.send(g.gamble(message));
-    else if (cmd.startsWith(p+"gift") || cmd.startsWith(p+"give")) message.channel.send(c.gift(message));
+    else if (cmd.startsWith(p+"name waifu")) message.channel.send(w.name(message));
+    else if (cmd.startsWith(p+"buy waifu")) message.channel.send(w.buy(message));
+    else if (cmd.startsWith(p+"gift")) message.channel.send(c.gift(message));
     else if (cmd.startsWith(p+"secret-eval")) message.channel.send(u.myeval(message));
 
     //cmds without args
@@ -56,6 +59,24 @@ bot.on('message', (message) => {
                 break;
             case p+"show waifu":
                 message.channel.send(w.show(message));
+                break;
+            case p+"sleep with waifu":
+                message.channel.send(w.sleep(message));
+                break;
+            case p+"pet waifu":
+                message.channel.send(w.cuddle(message));
+                break;
+            case p+"hug waifu":
+                message.channel.send(w.cuddle(message));
+                break;
+            case p+"kiss waifu":
+                message.channel.send(w.cuddle(message));
+                break;
+            case p+"shop waifu":
+                message.channel.send(w.shop(message));
+                break;
+            case p+"waifu help":
+                message.channel.send(w.help(message));
                 break;
             case p+"money":
                 message.channel.send(c.mycurrency(message));

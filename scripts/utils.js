@@ -52,7 +52,7 @@ function help() {
     .setColor("#FF0000")
     .setTitle("Here's what I can do for now:")
     .addField("$talk / $words","Related to responses based on what I've learned from others.")
-    .addField("$waifu / $show waifu","Claim a random waifu and show her to everyone. $waifu costs 5"+u.currency())
+    .addField("$waifu help","Use this to learn more about waifus.")
     .addField("$money / $gamble / $gift / $top","Money related stuff. You earn it from chatting. Spamming won't help!")
     .addField("$time","How long I've been up for.");
 
