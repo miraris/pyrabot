@@ -28,6 +28,10 @@ exports.prettynumber = function(n) {
     return prettyNumber(n);
 }
 
+exports.timediffstring = function(newest, oldest) {
+    return timedifftostring(newest, oldest);
+}
+
 function globalsave(message) {
     if (message.author.id==process.env.OWNER_ID) {
         s.save();
@@ -59,19 +63,23 @@ function help() {
     return {embed};
 }
 
-function botup() {
-    let time = new Date().getTime()-loaded;
+function timedifftostring(newest, oldest) {
+    let time = newest-oldest;
     let h = Math.floor(time/(1000*60*60));
     let m = Math.floor(time/(1000*60))%60;
     let s = Math.floor(time/(1000))%60;
-    let r = "I've been up for";
+    let r = "";
     if (h>0) r += " "+h+" hour";
     if (h>1) r += "s";
     if (m>0) r += " "+m+" minute";
     if (m>1) r += "s";
     if (s>0) r += " "+s+" second";
     if (s>1) r += "s";
-    return r+".";
+    return r;
+}
+
+function botup() {
+    return "I've been up for"+timedifftostring(new Date().getTime(), loaded)+".";
 }
 
 function prettyNumber(n) {

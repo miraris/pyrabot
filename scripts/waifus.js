@@ -3,6 +3,7 @@ var exports = module.exports = {};
 const discord = require('discord.js');
 const fs = require('fs');
 const u = require('./currency.js');
+const ut = require('./utils.js');
 const common = process.env.COMMON_URL;
 const url = common+process.env.URL1;
 const url2 = common+process.env.URL2;
@@ -98,7 +99,9 @@ function help() {
     .addField("$waifu","Claim a random waifu for 5"+u.currency()+". Rerolling will make you lose all your progress!")
     .addField("$show waifu","Shows your waifu and her stats.")
     .addField("$name waifu","Give your waifu a name!")
-    .addField("$sleep with waifu / $pet waifu / $hug waifu / $kiss waifu / $buy waifu","Interact with your waifu.")
+    .addField("$sleep with waifu","Sleep with your waifu for 6h. Can't do other activities while asleep!")
+	.addField("$pet waifu / $hug waifu / $kiss waifu","Show your waifu some love. 30 min cooldown!")
+	.addField("$buy waifu","Buy items for your waifu. Feeding your waifu has a 3h cooldown!")
     .addField("$shop waifu","Check what you can buy for your waifu.");
 
     return {embed};
@@ -187,7 +190,8 @@ function sleep(message) { //$sleep with waifu
     let now = new Date().getTime();
 
     if (now-taken[message.author.id.toString()].lastsleep<6*60*60*1000) {
-        return resolvename(message)+" is still asleep!";
+        let end = taken[message.author.id.toString()].lastsleep+6*60*60*1000;
+        return resolvename(message)+" will still be asleep for"+ut.timediffstring(end,now)+"!";
     }
 
     taken[message.author.id.toString()].health += 10;
@@ -204,11 +208,13 @@ function cuddle(message) { //pet hug kiss
     let now = new Date().getTime();
 
     if (now-taken[message.author.id.toString()].lastcuddled<1*60*60*1000) {
-        return resolvename(message)+" thinks you're being too clingy!";
+        let end = taken[message.author.id.toString()].lastcuddled+1*60*60*1000;
+        return resolvename(message)+" thinks you're being too clingy! (wait"+ut.timediffstring(end,now)+")";
     }
 
     if (now-taken[message.author.id.toString()].lastsleep<6*60*60*1000) {
-        return resolvename(message)+" is still asleep!";
+        let end = taken[message.author.id.toString()].lastsleep+6*60*60*1000;
+        return resolvename(message)+" will still be asleep for"+ut.timediffstring(end,now)+"!";
     }
 
     switch (message.content) {
@@ -235,7 +241,8 @@ function buy(message) { //$buy waifu
         return message.author.username+" has not claimed a waifu yet. Use '$waifu'.";
 
     if (new Date().getTime()-taken[message.author.id.toString()].lastsleep<6*60*60*1000) {
-        return resolvename(message)+" is still asleep!";
+        let end = taken[message.author.id.toString()].lastsleep+6*60*60*1000;
+        return resolvename(message)+" will still be asleep for"+ut.timediffstring(end,now)+"!";
     }
 
     if (!message.content.includes("$buy waifu "))
@@ -281,7 +288,8 @@ function buy(message) { //$buy waifu
             }
         case "veggies":
             if (now-taken[message.author.id.toString()].lastfed<3*60*60*1000) {
-                return resolvename(message)+" isn't hungry yet!";
+                let end = taken[message.author.id.toString()].lastfed+3*60*60*1000;
+                return resolvename(message)+" isn't hungry yet! (wait"+ut.timediffstring(end,now)+")";
             }
             else if (!u.deductcurrency(message.author.id.toString(), 15)) {
                 return message.author.username+" does not have enough "+u.currency();
@@ -293,7 +301,8 @@ function buy(message) { //$buy waifu
             }
         case "fish":
             if (now-taken[message.author.id.toString()].lastfed<3*60*60*1000) {
-                return resolvename(message)+" isn't hungry yet!";
+                let end = taken[message.author.id.toString()].lastfed+3*60*60*1000;
+                return resolvename(message)+" isn't hungry yet! (wait"+ut.timediffstring(end,now)+")";
             }
             else if (!u.deductcurrency(message.author.id.toString(), 35)) {
                 return message.author.username+" does not have enough "+u.currency();
@@ -306,7 +315,8 @@ function buy(message) { //$buy waifu
             }
         case "meat":
             if (now-taken[message.author.id.toString()].lastfed<3*60*60*1000) {
-                return resolvename(message)+" isn't hungry yet!";
+                let end = taken[message.author.id.toString()].lastfed+3*60*60*1000;
+                return resolvename(message)+" isn't hungry yet! (wait"+ut.timediffstring(end,now)+")";
             }
             else if (!u.deductcurrency(message.author.id.toString(), 40)) {
                 return message.author.username+" does not have enough "+u.currency();
