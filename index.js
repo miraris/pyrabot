@@ -78,6 +78,9 @@ bot.on('message', (message) => {
             case p+"waifu help":
                 message.channel.send(w.help(message));
                 break;
+            case p+"top waifus":
+                message.channel.send(w.top(message));
+                break;
             case p+"money":
                 message.channel.send(c.mycurrency(message));
                 break;
