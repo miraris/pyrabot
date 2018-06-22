@@ -9,16 +9,25 @@ const url = common+process.env.URL1;
 const url2 = common+process.env.URL2;
 const url3 = common+process.env.URL3;
 
-var taken = {}; //{"3405989": "example/url/pic.jpg"}, ..}
+var taken = {};
 var opt = [];
 var opt2 = [];
 var opt3 = [];
 load();
+
 var lastsave = new Date().getTime(); 
 var lastsleeppunishment = new Date().getTime(); 
 var lastcuddledpunishment = new Date().getTime(); 
 var lastfedpunishment = new Date().getTime(); 
 var lastwealthpunishment = new Date().getTime(); 
+
+const sleepduration = 2*60*60*1000;
+const sleeppenalty = 8*60*60*1000;
+const foodpenalty = 3*60*60*1000;
+const cuddlepenalty = 60*60*1000;
+const jogcooldown = 60*60*1000;
+const foodcooldown = 1*60*60*1000;
+const cuddlecooldown = 15*60*1000;
 
 console.log("Waifus: loading.");
 
@@ -48,6 +57,10 @@ exports.cuddle = function(message) {
 
 exports.sleep = function(message) {
     return sleep(message);
+}
+
+exports.jog = function(message) {
+    return jog(message);
 }
 
 exports.update = function(message) {
@@ -111,7 +124,10 @@ function buyembed() {
     .addField("fish","35 "+u.currency(), true)
     .addField("meat","40 "+u.currency(), true)
     .addField("chocolate","20 "+u.currency(), true)
-    .addField("flowers","45 "+u.currency(), true);
+    .addField("flowers","45 "+u.currency(), true)
+    .addField("energy drink","50 "+u.currency(), true)
+    .addField("game","100 "+u.currency(), true)
+    .addField("phone","400 "+u.currency(), true);
 
     return {embed};
 }
@@ -125,6 +141,7 @@ function help() {
     .addField("$show waifu","Shows your waifu and her stats.")
     .addField("$name waifu","Give your waifu a name!")
     .addField("$sleep with waifu","Sleep with your waifu for 2h. Can't do other activities while asleep!")
+    .addField("$jog with waifu","Do some exercise with your waifu. 1h cooldown!")
 	.addField("$pet waifu / $hug waifu / $kiss waifu","Show your waifu some love. 15 min cooldown!")
 	.addField("$buy waifu","Buy items for your waifu. Feeding your waifu has a 1h cooldown!")
     .addField("$shop waifu","Check what you can buy for your waifu.")
@@ -140,6 +157,8 @@ function top(message) {
         let total = Math.floor(taken[keys[i]].health/20) + 
                     Math.floor(taken[keys[i]].wealth/20) + 
                     Math.floor(taken[keys[i]].happy/20) + 
+                    Math.floor(taken[keys[i]].smart/20) + 
+                    Math.floor(taken[keys[i]].fit/20) + 
                     Math.floor(taken[keys[i]].love/20);
         array.push({id: keys[i], amt: total});
     }
@@ -162,7 +181,7 @@ function top(message) {
             let member = message.guild.members.find("id", array[i].id.toString())
             if (member!=null) {
                 let name = member.user.username;
-                embed.addField(index+" - "+resolvenametop(array[i].id, name),array[i].amt+"/20 ★", true);
+                embed.addField(index+" - "+resolvenametop(array[i].id, name),array[i].amt+"/30 ★", true);
                 index++;
             }
         }
@@ -188,7 +207,13 @@ function update(message) {
     if (taken[message.author.id.toString()].health<0) taken[message.author.id.toString()].health=0;
     else if (taken[message.author.id.toString()].health>100) taken[message.author.id.toString()].health=100;
 
-    if (now-taken[message.author.id.toString()].lastsleep>=8*60*60*1000) { //havent slept for 8+ hours, every 30 min lower stats
+    if (taken[message.author.id.toString()].fit<0) taken[message.author.id.toString()].fit=0;
+    else if (taken[message.author.id.toString()].fit>100) taken[message.author.id.toString()].fit=100;
+
+    if (taken[message.author.id.toString()].smart<0) taken[message.author.id.toString()].smart=0;
+    else if (taken[message.author.id.toString()].smart>100) taken[message.author.id.toString()].smart=100;
+
+    if (now-taken[message.author.id.toString()].lastsleep>=sleeppenalty) { //havent slept for 8+ hours, every 30 min lower stats
         if (now-lastsleeppunishment>=30*60*1000) {
             taken[message.author.id.toString()].happy -= 1;
             taken[message.author.id.toString()].love -= 0.4;
@@ -197,7 +222,7 @@ function update(message) {
         }
     }
 
-    if (now-taken[message.author.id.toString()].lastfed>=3*60*60*1000) { //havent eaten for 3+ hours, every 30 min lower stats
+    if (now-taken[message.author.id.toString()].lastfed>=foodpenalty) { //havent eaten for 3+ hours, every 30 min lower stats
         if (now-lastfedpunishment>=30*60*1000) {
             taken[message.author.id.toString()].happy -= 0.25;
             taken[message.author.id.toString()].love -= 0.3;
@@ -206,7 +231,7 @@ function update(message) {
         }
     }
 
-    if (now-taken[message.author.id.toString()].lastcuddled>=1*60*60*1000) { //havent cuddled for 1+ hour, every 30 min lower stats
+    if (now-taken[message.author.id.toString()].lastcuddled>=cuddlepenalty) { //havent cuddled for 1+ hour, every 30 min lower stats
         if (now-lastcuddledpunishment>=30*60*1000) {
             taken[message.author.id.toString()].happy -= 0.25;
             taken[message.author.id.toString()].love -= 0.2;
@@ -247,14 +272,38 @@ function name(message) { //$name waifu
     return message.author.username+"'s waifu is now "+text+"!";
 }
 
+function jog(message) { //$jog with waifu
+    if (!taken[message.author.id.toString()])
+        return message.author.username+" has not claimed a waifu yet. Use '$waifu'.";
+
+    let now = new Date().getTime();
+
+    if (now-taken[message.author.id.toString()].lastsleep<sleepduration) {
+        let end = taken[message.author.id.toString()].lastsleep+sleepduration;
+        return sleepingtext(message)+" (wait"+ut.timediffstring(end,now)+")";
+    }
+
+    if (now-taken[message.author.id.toString()].lastjog<jogcooldown) {
+        let end = taken[message.author.id.toString()].lastjog+jogcooldown;
+        return resolvename(message)+"is still tired from jogging! (wait"+ut.timediffstring(end,now)+")";
+    }
+
+    taken[message.author.id.toString()].health += 5;
+    taken[message.author.id.toString()].happy -= 1;
+    taken[message.author.id.toString()].love += 1;
+    taken[message.author.id.toString()].fit += 3;
+    taken[message.author.id.toString()].lastjog = now;
+    return resolvename(message)+" goes for a jog with "+message.author.username+"!";
+}
+
 function sleep(message) { //$sleep with waifu
     if (!taken[message.author.id.toString()])
         return message.author.username+" has not claimed a waifu yet. Use '$waifu'.";
 
     let now = new Date().getTime();
 
-    if (now-taken[message.author.id.toString()].lastsleep<2*60*60*1000) {
-        let end = taken[message.author.id.toString()].lastsleep+2*60*60*1000;
+    if (now-taken[message.author.id.toString()].lastsleep<sleepduration) {
+        let end = taken[message.author.id.toString()].lastsleep+sleepduration;
         return sleepingtext(message)+" (wait"+ut.timediffstring(end,now)+")";
     }
 
@@ -271,14 +320,14 @@ function cuddle(message) { //pet hug kiss
 
     let now = new Date().getTime();
 
-    if (now-taken[message.author.id.toString()].lastcuddled<15*60*1000) {
-        let end = taken[message.author.id.toString()].lastcuddled+15*60*1000;
-        return clingytext(message)+" (wait"+ut.timediffstring(end,now)+")";
+    if (now-taken[message.author.id.toString()].lastsleep<sleepduration) {
+        let end = taken[message.author.id.toString()].lastsleep+sleepduration;
+        return sleepingtext(message)+" (wait"+ut.timediffstring(end,now)+")";
     }
 
-    if (now-taken[message.author.id.toString()].lastsleep<2*60*60*1000) {
-        let end = taken[message.author.id.toString()].lastsleep+2*60*60*1000;
-        return sleepingtext(message)+" (wait"+ut.timediffstring(end,now)+")";
+    if (now-taken[message.author.id.toString()].lastcuddled<cuddlecooldown) {
+        let end = taken[message.author.id.toString()].lastcuddled+cuddlecooldown;
+        return clingytext(message)+" (wait"+ut.timediffstring(end,now)+")";
     }
 
     switch (message.content) {
@@ -306,8 +355,8 @@ function buy(message) { //$buy waifu
 
 	let now = new Date().getTime();
 	
-    if (now-taken[message.author.id.toString()].lastsleep<2*60*60*1000) {
-        let end = taken[message.author.id.toString()].lastsleep+2*60*60*1000;
+    if (now-taken[message.author.id.toString()].lastsleep<sleepduration) {
+        let end = taken[message.author.id.toString()].lastsleep+sleepduration;
         return sleepingtext(message)+" (wait"+ut.timediffstring(end,now)+")";
     }
 
@@ -323,6 +372,7 @@ function buy(message) { //$buy waifu
             } else {
                 taken[message.author.id.toString()].happy += 2;
                 taken[message.author.id.toString()].love += 1;
+                taken[message.author.id.toString()].smart += 2.5;
                 return resolvename(message)+" appreciates "+message.author.username+"'s book!";
             }
         case "movie":
@@ -331,6 +381,7 @@ function buy(message) { //$buy waifu
             } else {
                 taken[message.author.id.toString()].happy += 3;
                 taken[message.author.id.toString()].love += 1;
+                taken[message.author.id.toString()].smart += 1.5;
                 return resolvename(message)+" appreciates "+message.author.username+"'s movie!";
             }
         case "dress":
@@ -352,21 +403,22 @@ function buy(message) { //$buy waifu
                 return resolvename(message)+" feels great wearing "+message.author.username+"'s gift!";
             }
         case "veggies":
-            if (now-taken[message.author.id.toString()].lastfed<1*60*60*1000) {
-                let end = taken[message.author.id.toString()].lastfed+1*60*60*1000;
+            if (now-taken[message.author.id.toString()].lastfed<foodcooldown) {
+                let end = taken[message.author.id.toString()].lastfed+foodcooldown;
                 return resolvename(message)+" isn't hungry yet! (wait"+ut.timediffstring(end,now)+")";
             }
             else if (!u.deductcurrency(message.author.id.toString(), 15)) {
                 return message.author.username+" does not have enough "+u.currency();
             } else {
                 taken[message.author.id.toString()].health += 4;
+                taken[message.author.id.toString()].fit += 2.5;
                 taken[message.author.id.toString()].love += 1;
                 taken[message.author.id.toString()].lastfed = now;
                 return resolvename(message)+" enjoys a healthy diet proposed by "+message.author.username+"!";
             }
         case "fish":
-            if (now-taken[message.author.id.toString()].lastfed<1*60*60*1000) {
-                let end = taken[message.author.id.toString()].lastfed+1*60*60*1000;
+            if (now-taken[message.author.id.toString()].lastfed<foodcooldown) {
+                let end = taken[message.author.id.toString()].lastfed+foodcooldown;
                 return resolvename(message)+" isn't hungry yet! (wait"+ut.timediffstring(end,now)+")";
             }
             else if (!u.deductcurrency(message.author.id.toString(), 35)) {
@@ -374,13 +426,14 @@ function buy(message) { //$buy waifu
             } else {
                 taken[message.author.id.toString()].health += 3;
                 taken[message.author.id.toString()].happy += 1;
+                taken[message.author.id.toString()].fit += 1.5;
                 taken[message.author.id.toString()].love += 1;
                 taken[message.author.id.toString()].lastfed = now;
                 return resolvename(message)+" likes the fish dish made by "+message.author.username+"!";
             }
         case "meat":
-            if (now-taken[message.author.id.toString()].lastfed<1*60*60*1000) {
-                let end = taken[message.author.id.toString()].lastfed+1*60*60*1000;
+            if (now-taken[message.author.id.toString()].lastfed<foodcooldown) {
+                let end = taken[message.author.id.toString()].lastfed+foodcooldown;
                 return resolvename(message)+" isn't hungry yet! (wait"+ut.timediffstring(end,now)+")";
             }
             else if (!u.deductcurrency(message.author.id.toString(), 40)) {
@@ -388,6 +441,7 @@ function buy(message) { //$buy waifu
             } else {
                 taken[message.author.id.toString()].health += 2;
                 taken[message.author.id.toString()].happy += 2;
+                taken[message.author.id.toString()].fit += 0.5;
                 taken[message.author.id.toString()].love += 1;
                 taken[message.author.id.toString()].lastfed = now;
                 return resolvename(message)+" loves the meat dish cooked by "+message.author.username+"!";
@@ -398,7 +452,8 @@ function buy(message) { //$buy waifu
             } else {
                 taken[message.author.id.toString()].health -= 1;
                 taken[message.author.id.toString()].happy += 4;
-                taken[message.author.id.toString()].love += 1;
+                taken[message.author.id.toString()].fit -= 1.5;
+                taken[message.author.id.toString()].love += 1.5;
                 return resolvename(message)+" happily eats "+message.author.username+"'s chocolate box!";
             }
         case "flowers":
@@ -409,6 +464,36 @@ function buy(message) { //$buy waifu
                 taken[message.author.id.toString()].love += 2;
                 return resolvename(message)+" loves "+message.author.username+"'s flowers!";
             }
+        case "energy drink":
+            if (!u.deductcurrency(message.author.id.toString(), 50)) {
+                return message.author.username+" does not have enough "+u.currency();
+            } else {
+                taken[message.author.id.toString()].health -= 1;
+                taken[message.author.id.toString()].fit += 2;
+                taken[message.author.id.toString()].love += 0.5;
+                return resolvename(message)+" feels full of energy thanks to "+message.author.username+"'s gift!";
+            }
+        case "game":
+            if (!u.deductcurrency(message.author.id.toString(), 100)) {
+                return message.author.username+" does not have enough "+u.currency();
+            } else {
+                taken[message.author.id.toString()].happy += 3;
+                taken[message.author.id.toString()].smart += 2;
+                taken[message.author.id.toString()].love += 0.8;
+                taken[message.author.id.toString()].fit -= 0.5;
+                return resolvename(message)+" will have fun with "+message.author.username+"'s game!";
+            }
+        case "phone":
+            if (!u.deductcurrency(message.author.id.toString(), 400)) {
+                return message.author.username+" does not have enough "+u.currency();
+            } else {
+                taken[message.author.id.toString()].happy += 6;
+                taken[message.author.id.toString()].wealth += 5;
+                taken[message.author.id.toString()].smart += 4;
+                taken[message.author.id.toString()].love += 3;
+                taken[message.author.id.toString()].fit += 0.5;
+                return resolvename(message)+" can now stay in touch with "+message.author.username+"!";
+            }
         default:
             return message.author.username+", the shop doesn't have that. Use '$shop waifu'.";
     
@@ -417,66 +502,72 @@ function buy(message) { //$buy waifu
 }
 
 function show(message) {
-        if (!message.channel.nsfw) {
-            return "Please only use '$show waifu' in nsfw rooms!";
+    let uid = message.author.id.toString();
+
+    if (!message.channel.nsfw) {
+        return "Please only use '$show waifu' in nsfw rooms!";
+    }
+    else if (!taken[uid])
+        return message.author.username+" has not claimed a waifu yet. Use '$waifu'.";
+    else {
+
+        let obj = taken[uid];
+
+        let n = obj.name;
+        let he = numtoscale(obj.health);
+        let ha = numtoscale(obj.happy);
+        let l = numtoscale(obj.love);
+        let w = numtoscale(obj.wealth);
+        let s = numtoscale(obj.smart);
+        let f = numtoscale(obj.fit);
+
+        let now = new Date().getTime(); 
+
+        let status;
+
+        if (now-obj.lastsleep<sleepduration)
+            status = "Sleeping...";
+        else if (now-obj.lastfed>=foodpenalty)
+            status = "Very hungry";
+        else if (now-obj.lastcuddled>=cuddlepenalty)
+            status = "In need of affection";
+        else if (now-obj.lastsleep>=sleeppenalty)
+            status = "Extremely tired";
+        else if (now-obj.lastcuddled<cuddlecooldown)
+            status = "Feeling loved";
+        else if (now-obj.lastfed<foodcooldown)
+            status = "Belly full";
+        else if (obj.health<40)
+            status = "Feeling unwell";
+        else if (obj.wealth<40)
+            status = "Embarassed to be so poor";
+        else if (obj.love<40)
+            status = "Cold and empty";
+        else if (obj.happy<40)
+            status = "Very unhappy";
+        else
+            status = "Doing hobbies";
+
+        const embed = new discord.RichEmbed()
+        .setColor('#FF0000')
+        .setFooter(message.author.username+"'s waifu", message.author.avatarURL)
+        .setImage("attachment://image.png")
+        .addField("Name", n)
+        .addField("Health ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Happy ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Smart", he+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ "+ha+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­"+s)
+        .addField("Love ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Wealth ­ ­ ­ ­ ­ ­ ­ ­ ­ ­Fitness", l+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ "+w+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­  ­­"+f)
+        .addField("Status",status);      
+
+        let link;
+        if (obj.folder == "url1") {
+            link = url+obj.pic;
+        } else if (obj.folder == "url2") {
+            link = url2+obj.pic;
+        } else {
+            link = url3+obj.pic;
         }
-        else if (!taken[message.author.id.toString()])
-            return message.author.username+" has not claimed a waifu yet. Use '$waifu'.";
-        else {
 
-            let n = taken[message.author.id.toString()].name;
-            let he = numtoscale(taken[message.author.id.toString()].health);
-            let ha = numtoscale(taken[message.author.id.toString()].happy);
-            let l = numtoscale(taken[message.author.id.toString()].love);
-            let w = numtoscale(taken[message.author.id.toString()].wealth);
-
-            let now = new Date().getTime(); 
-
-            let status;
-
-            if (now-taken[message.author.id.toString()].lastsleep<2*60*60*1000)
-                status = "Sleeping...";
-            else if (now-taken[message.author.id.toString()].lastfed>=3*60*60*1000)
-                status = "Very hungry";
-            else if (now-taken[message.author.id.toString()].lastcuddled>=1*60*60*1000)
-                status = "In need of affection";
-            else if (now-taken[message.author.id.toString()].lastsleep>=8*60*60*1000)
-                status = "Extremely tired";
-            else if (now-taken[message.author.id.toString()].lastcuddled<15*60*1000)
-                status = "Feeling loved";
-            else if (now-taken[message.author.id.toString()].lastfed<1*60*60*1000)
-                status = "Belly full";
-            else if (taken[message.author.id.toString()].health<40)
-                status = "Feeling unwell";
-            else if (taken[message.author.id.toString()].wealth<40)
-                status = "Embarassed to be so poor";
-            else if (taken[message.author.id.toString()].love<40)
-                status = "Cold and empty";
-            else if (taken[message.author.id.toString()].happy<40)
-                status = "Very unhappy";
-            else
-                status = "Doing hobbies";
-
-            const embed = new discord.RichEmbed()
-            .setColor('#FF0000')
-            .setFooter(message.author.username+"'s waifu", message.author.avatarURL)
-            .setImage("attachment://image.png")
-            .addField("Name", n)
-            .addField("Health ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Happy", he+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ "+ha)
-            .addField("Love ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Wealth", l+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ "+w)
-            .addField("Status",status);      
-    
-            let link;
-            if (taken[message.author.id.toString()].folder == "url1") {
-                link = url+taken[message.author.id.toString()].pic;
-            } else if (taken[message.author.id.toString()].folder == "url2") {
-                link = url2+taken[message.author.id.toString()].pic;
-            } else {
-                link = url3+taken[message.author.id.toString()].pic;
-            }
-    
-            return {embed, files: [{ attachment: link, name: 'image.png' }]};
-        }
+        return {embed, files: [{ attachment: link, name: 'image.png' }]};
+    }
 }
 
 function waifu(message) {
@@ -585,7 +676,7 @@ function load() {
 }
 
 function newwaifu(folder,pic) {
-    return {folder: folder, pic: pic, name: "-", health: 60, love: 60, happy: 60, wealth: 60, lastsleep: 1, lastcuddled: 1, lastfed: 1};
+    return {folder: folder, pic: pic, name: "-", health: 60, love: 60, happy: 60, wealth: 60, smart: 20, fit: 20, lastsleep: 1, lastcuddled: 1, lastfed: 1, lastjogged: 1};
 }
 
 function pictaken(file) {

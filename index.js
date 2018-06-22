@@ -18,7 +18,7 @@ const bot = new discord.Client();
 bot.login(bottoken);
 
 bot.on('ready', () => {
-  bot.user.setPresence({game: {name: "Cinnamon roll bot"}, status: "dnd"});
+  bot.user.setPresence({game: {name: "Miss Cinnamon Roll"}, status: "dnd"});
   console.log('Bot is up.');
 })
 
@@ -62,6 +62,9 @@ bot.on('message', (message) => {
                 break;
             case p+"sleep with waifu":
                 message.channel.send(w.sleep(message));
+                break;
+            case p+"jog with waifu":
+                message.channel.send(w.jog(message));
                 break;
             case p+"pet waifu":
                 message.channel.send(w.cuddle(message));
