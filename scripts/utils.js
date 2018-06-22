@@ -43,11 +43,16 @@ function globalsave(message) {
 }
 
 function myeval(message) {
-    if (message.author.id==process.env.OWNER_ID) {
-        let text = message.content.replace("$secret-eval ","");
-        return eval(text);
+    try {
+        if (message.author.id==process.env.OWNER_ID) {
+            let text = message.content.replace("$secret-eval ","");
+            return eval(text);
+        }
+        else return "You're not "+process.env.OWNER+".";
+    } catch (e) {
+        console.log("Utils#myeval: Error -> "+e);
+        return "An error occured.";
     }
-    else return "You're not "+process.env.OWNER+".";
 }
 
 function help() {
