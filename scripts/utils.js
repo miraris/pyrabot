@@ -80,7 +80,7 @@ const timedifftostring = (newest, oldest) => {
     const s = Math.floor(time/(1000))%60;
     let r = "";
     const pluralizeTime = (time, noun, suffix = 's') =>
-    `${time} ${noun}${count !== 1 ? suffix : ''}`;
+    `${time} ${noun}${time !== 1 ? suffix : ''}`;
 
     r += (h>0) ? pluralizeTime(h, "hour") : '';
     r += (m>0) ? pluralizeTime(m, "minute") : '';
