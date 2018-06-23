@@ -48,8 +48,19 @@ const prettyNumber = (n) => {
     return final;
 };
 
+/**
+ * Capitalize a string
+ *
+ * @param str
+ * @returns {string}
+ */
+const capitalize = (str) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
 module.exports = {
     fromOwner,
     prettyNumber,
-    timeDiffToString
+    timeDiffToString,
+    capitalize
 };

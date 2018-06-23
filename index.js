@@ -36,6 +36,7 @@ bot.on('message', (message) => {
     if (cmd.startsWith(p+"gamble")) message.channel.send(g.gamble(message));
     else if (cmd.startsWith(p+"name waifu")) message.channel.send(w.name(message));
     else if (cmd.startsWith(p+"buy waifu")) message.channel.send(w.buy(message));
+    else if (cmd.startsWith(p+"trait waifu")) message.channel.send(w.trait(message));
     else if (cmd.startsWith(p+"gift")) message.channel.send(c.gift(message));
     else if (cmd.startsWith(p+"secret-eval")) message.channel.send(u.myeval(message));
 
@@ -69,7 +70,13 @@ bot.on('message', (message) => {
             case p+"sleep with waifu":
                 message.channel.send(w.sleep(message));
                 break;
+            case p+"sleep waifu":
+                message.channel.send(w.sleep(message));
+                break;
             case p+"jog with waifu":
+                message.channel.send(w.jog(message));
+                break;
+            case p+"jog waifu":
                 message.channel.send(w.jog(message));
                 break;
             case p+"pet waifu":

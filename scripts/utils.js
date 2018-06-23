@@ -53,13 +53,13 @@ const myeval = (message) => {
 
 const help = () => {
     const embed = new discord.RichEmbed()
-    .setAuthor("~~ You used the $help command ~~", "https://cdn.discordapp.com/avatars/456934877841981462/5a880bec4e424aab34fcf6f62cc8a363.png?size=128")
-    .setColor("#FF0000")
-    .setTitle("Here's what I can do for now:")
-    .addField("$talk / $words","Related to responses based on what I've learned from others.")
-    .addField("$waifu help","Use this to learn more about waifus.")
-    .addField("$money / $gamble / $gift / $top","Money related stuff. You earn it from chatting. Spamming won't help!")
-    .addField("$time","How long I've been up for.");
+        .setAuthor("~~ You used the $help command ~~", "https://cdn.discordapp.com/avatars/456934877841981462/5a880bec4e424aab34fcf6f62cc8a363.png?size=128")
+        .setColor("#FF0000")
+        .setTitle("Here's what I can do for now:")
+        .addField("$talk / $words","Related to responses based on what I've learned from others.")
+        .addField("$waifu help","Use this to learn more about waifus.")
+        .addField("$money / $gamble / $gift / $top","Money related stuff. You earn it from chatting. Spamming won't help!")
+        .addField("$time","How long I've been up for.");
 
     return { embed };
 };
