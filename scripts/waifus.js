@@ -509,10 +509,10 @@ function show(message) {
     let uid = message.author.id.toString();
 
     if (!message.channel.nsfw) {
-        return "Please only use '$show waifu' in nsfw rooms!";
+        message.channel.send("Please only use '$show waifu' in nsfw rooms!");
     }
     else if (!taken[uid])
-        return message.author.username+" has not claimed a waifu yet. Use '$waifu'.";
+        message.channel.send(message.author.username+" has not claimed a waifu yet. Use '$waifu'.");
     else {
 
         let obj = taken[uid];
