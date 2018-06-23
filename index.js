@@ -61,7 +61,7 @@ bot.on('message', (message) => {
                 message.channel.send(w.rerollwaifu(message));
                 break;
             case p+"show waifu":
-                message.channel.send(w.show(message));
+                w.show(message);
                 break;
             case p+"sleep with waifu":
                 message.channel.send(w.sleep(message));

@@ -517,6 +517,9 @@ function show(message) {
 
         let obj = taken[uid];
 
+        message.channel.send(message.author.username+", loading... 0% :hourglass:").then(
+            newm => {
+
         let n = obj.name;
         let he = numtoscale(obj.health);
         let ha = numtoscale(obj.happy);
@@ -528,6 +531,8 @@ function show(message) {
         let now = new Date().getTime(); 
 
         let status;
+
+        newm.edit(message.author.username+", loading... 25% :hourglass:");
 
         if (now-obj.lastsleep<sleepduration)
             status = "Sleeping...";
@@ -552,6 +557,8 @@ function show(message) {
         else
             status = "Doing hobbies";
 
+        newm.edit(message.author.username+", loading... 50% :hourglass:");
+
         const embed = new discord.RichEmbed()
         .setColor('#FF0000')
         .setFooter(message.author.username+"'s waifu", message.author.avatarURL)
@@ -570,7 +577,16 @@ function show(message) {
             link = url3+obj.pic;
         }
 
-        return {embed, files: [{ attachment: link, name: 'image.png' }]};
+        newm.edit(message.author.username+", loading... 75% :hourglass:");
+
+        message.channel.send({embed, files: [{ attachment: link, name: 'image.png' }]}).then(
+            finalm => {
+            let makethissync = finalm.author.username; //ensure that the other msg is deleted only after image is uploaded
+            newm.delete();
+            }
+            );
+
+        });
     }
 }
 
