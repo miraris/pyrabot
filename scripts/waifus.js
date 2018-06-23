@@ -4,6 +4,7 @@ const discord = require('discord.js');
 const fs = require('fs');
 const u = require('./currency.js');
 const ut = require('./utils.js');
+const h = require('./helpers');
 const common = process.env.COMMON_URL;
 const url = common+process.env.URL1;
 const url2 = common+process.env.URL2;
@@ -363,8 +364,8 @@ function trait(message) { //$trait waifu
 
     if (text==="calm" || text==="loyal" || text==="curious" || text==="valiant" || text==="serious" ||
         text==="leader" || text==="wild" || text==="playful" || text==="careful" || text==="none") {
-            taken[message.author.id.toString()].trait = ut.capitalize(text);
-            return resolvename(message)+" now has the trait "+ut.capitalize(text)+"!";
+            taken[message.author.id.toString()].trait = h.capitalize(text);
+            return resolvename(message)+" now has the trait "+h.capitalize(text)+"!";
         } else {
             return errorstring;
         }
@@ -379,12 +380,12 @@ function jog(message) { //$jog with waifu
 
     if (now-taken[message.author.id.toString()].lastsleep<sleepduration) {
         let end = taken[message.author.id.toString()].lastsleep+sleepduration;
-        return sleepingtext(message)+" (wait"+ut.timediffstring(end,now)+")";
+        return sleepingtext(message)+" (wait"+h.timeDiffToString(end,now)+")";
     }
 
     if (now-taken[message.author.id.toString()].lastjog<jogcooldown) {
         let end = taken[message.author.id.toString()].lastjog+jogcooldown;
-        return resolvename(message)+" is still tired from jogging! (wait"+ut.timediffstring(end,now)+")";
+        return resolvename(message)+" is still tired from jogging! (wait"+h.timeDiffToString(end,now)+")";
     }
 
     taken[message.author.id.toString()].health += 5;
@@ -403,7 +404,7 @@ function sleep(message) { //$sleep with waifu
 
     if (now-taken[message.author.id.toString()].lastsleep<sleepduration) {
         let end = taken[message.author.id.toString()].lastsleep+sleepduration;
-        return sleepingtext(message)+" (wait"+ut.timediffstring(end,now)+")";
+        return sleepingtext(message)+" (wait"+h.timeDiffToString(end,now)+")";
     }
 
     taken[message.author.id.toString()].health += 10;
@@ -421,12 +422,12 @@ function cuddle(message) { //pet hug kiss
 
     if (now-taken[message.author.id.toString()].lastsleep<sleepduration) {
         let end = taken[message.author.id.toString()].lastsleep+sleepduration;
-        return sleepingtext(message)+" (wait"+ut.timediffstring(end,now)+")";
+        return sleepingtext(message)+" (wait"+h.timeDiffToString(end,now)+")";
     }
 
     if (now-taken[message.author.id.toString()].lastcuddled<cuddlecooldown) {
         let end = taken[message.author.id.toString()].lastcuddled+cuddlecooldown;
-        return clingytext(message)+" (wait"+ut.timediffstring(end,now)+")";
+        return clingytext(message)+" (wait"+h.timeDiffToString(end,now)+")";
     }
 
     switch (message.content) {
@@ -456,7 +457,7 @@ function buy(message) { //$buy waifu
 	
     if (now-taken[message.author.id.toString()].lastsleep<sleepduration) {
         let end = taken[message.author.id.toString()].lastsleep+sleepduration;
-        return sleepingtext(message)+" (wait"+ut.timediffstring(end,now)+")";
+        return sleepingtext(message)+" (wait"+h.timeDiffToString(end,now)+")";
     }
 
     if (!message.content.includes("$buy waifu "))
@@ -504,7 +505,7 @@ function buy(message) { //$buy waifu
         case "veggies":
             if (now-taken[message.author.id.toString()].lastfed<foodcooldown) {
                 let end = taken[message.author.id.toString()].lastfed+foodcooldown;
-                return resolvename(message)+" isn't hungry yet! (wait"+ut.timediffstring(end,now)+")";
+                return resolvename(message)+" isn't hungry yet! (wait"+h.timeDiffToString(end,now)+")";
             }
             else if (!u.deductcurrency(message.author.id.toString(), 15)) {
                 return message.author.username+" does not have enough "+u.currency();
@@ -518,7 +519,7 @@ function buy(message) { //$buy waifu
         case "fish":
             if (now-taken[message.author.id.toString()].lastfed<foodcooldown) {
                 let end = taken[message.author.id.toString()].lastfed+foodcooldown;
-                return resolvename(message)+" isn't hungry yet! (wait"+ut.timediffstring(end,now)+")";
+                return resolvename(message)+" isn't hungry yet! (wait"+h.timeDiffToString(end,now)+")";
             }
             else if (!u.deductcurrency(message.author.id.toString(), 35)) {
                 return message.author.username+" does not have enough "+u.currency();
@@ -533,7 +534,7 @@ function buy(message) { //$buy waifu
         case "meat":
             if (now-taken[message.author.id.toString()].lastfed<foodcooldown) {
                 let end = taken[message.author.id.toString()].lastfed+foodcooldown;
-                return resolvename(message)+" isn't hungry yet! (wait"+ut.timediffstring(end,now)+")";
+                return resolvename(message)+" isn't hungry yet! (wait"+h.timeDiffToString(end,now)+")";
             }
             else if (!u.deductcurrency(message.author.id.toString(), 40)) {
                 return message.author.username+" does not have enough "+u.currency();

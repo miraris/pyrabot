@@ -1,7 +1,7 @@
 var exports = module.exports = {};
 
 const fs = require('fs');
-const u = require('./utils.js');
+const h = require('./helpers');
 const minsentencesize = 11;
 var lastupdate = new Date().getTime();
 
@@ -323,8 +323,7 @@ class Brain {
     }
 
     wordcount() {
-        if (this.nodes.length>1) return "I know "+u.prettynumber(this.nodes.length)+" words!";
-        else return "I know 1 word!";
+        return (this.nodes.length>1) ? `I know ${h.prettyNumber(this.nodes.length)} words!` : "I know 1 word!";
     }
 }
 
