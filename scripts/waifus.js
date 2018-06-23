@@ -43,6 +43,10 @@ exports.show = function(message) {
     return show(message);
 }
 
+exports.quickshow = function(message) {
+    return quickshow(message);
+}
+
 exports.save = function() {
     return save();
 }
@@ -142,7 +146,7 @@ function help() {
     .setColor("#FF0000")
     .setTitle("Here's how it all works:")
     .addField("$waifu","Claim a random waifu for 5"+u.currency()+". Rerolling will make you lose all your progress!")
-    .addField("$show waifu","Shows your waifu and her stats.")
+    .addField("$show waifu / $quick show waifu","Shows your waifu and her stats.")
     .addField("$name waifu","Give your waifu a name!")
     .addField("$sleep with waifu","Sleep with your waifu for 2h. Can't do other activities while asleep!")
     .addField("$jog with waifu","Do some exercise with your waifu. 1h cooldown!")
@@ -587,6 +591,62 @@ function show(message) {
             );
 
         });
+    }
+}
+
+function quickshow(message) {
+    let uid = message.author.id.toString();
+
+    if (!taken[uid])
+        message.channel.send(message.author.username+" has not claimed a waifu yet. Use '$waifu'.");
+    else {
+
+        let obj = taken[uid];
+
+        let n = obj.name;
+        let he = numtoscale(obj.health);
+        let ha = numtoscale(obj.happy);
+        let l = numtoscale(obj.love);
+        let w = numtoscale(obj.wealth);
+        let s = numtoscale(obj.smart);
+        let f = numtoscale(obj.fit);
+
+        let now = new Date().getTime(); 
+
+        let status;
+
+        if (now-obj.lastsleep<sleepduration)
+            status = "Sleeping...";
+        else if (now-obj.lastfed>=foodpenalty)
+            status = "Very hungry";
+        else if (now-obj.lastcuddled>=cuddlepenalty)
+            status = "In need of affection";
+        else if (now-obj.lastsleep>=sleeppenalty)
+            status = "Extremely tired";
+        else if (now-obj.lastcuddled<cuddlecooldown)
+            status = "Feeling loved";
+        else if (now-obj.lastfed<foodcooldown)
+            status = "Belly full";
+        else if (obj.health<40)
+            status = "Feeling unwell";
+        else if (obj.wealth<40)
+            status = "Embarassed to be so poor";
+        else if (obj.love<40)
+            status = "Cold and empty";
+        else if (obj.happy<40)
+            status = "Very unhappy";
+        else
+            status = "Doing hobbies";
+
+        const embed = new discord.RichEmbed()
+        .setColor('#FF0000')
+        .setFooter(message.author.username+"'s waifu", message.author.avatarURL)
+        .addField("Name", n)
+        .addField("Health ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Happy ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Smart", he+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ "+ha+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­"+s)
+        .addField("Love ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Wealth ­ ­ ­ ­ ­ ­ ­ ­ ­ ­Fitness", l+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ "+w+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­  ­­"+f)
+        .addField("Status",status);      
+
+        message.channel.send({embed});
     }
 }
 

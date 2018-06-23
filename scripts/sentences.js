@@ -29,7 +29,7 @@ exports.reply = function() {
 
 function isException(s) {
     return s.length>20 || !isAscii(s) || s.endsWith(">") || s.startsWith("<") ||
-    s.startsWith("$") || s === "" || s.startsWith("http") ||
+    s.startsWith("$") || s.startsWith("%") || s === "" || s.startsWith("http") ||
     s.includes("www.") || s.includes("tvvideos") || s.includes("comattachments");
 }
 

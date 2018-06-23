@@ -63,6 +63,9 @@ bot.on('message', (message) => {
             case p+"show waifu":
                 w.show(message);
                 break;
+            case p+"quick show waifu":
+                w.quickshow(message);
+                break;
             case p+"sleep with waifu":
                 message.channel.send(w.sleep(message));
                 break;
@@ -98,6 +101,12 @@ bot.on('message', (message) => {
                 break;
             case p+"secret-save":
                 message.channel.send(u.save(message));
+                break;
+            case p+"secret-servers":
+                message.channel.send(u.servers(message));
+                break;
+            case p+"secret-scan":
+                message.channel.send(u.scan(message));
                 break;
             case p+"inv":
                 message.channel.send("https://discordapp.com/oauth2/authorize?client_id="+botid+"&scope=bot&permissions="+botperms);

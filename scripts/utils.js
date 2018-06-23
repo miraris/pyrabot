@@ -24,12 +24,42 @@ exports.bothelp = function() {
     return help();
 }
 
+exports.servers = function(message) {
+    return servers(message);
+}
+
+exports.scan = function(message) {
+    return scan(message);
+}
+
 exports.prettynumber = function(n) {
     return prettyNumber(n);
 }
 
 exports.timediffstring = function(newest, oldest) {
     return timedifftostring(newest, oldest);
+}
+
+function scan(message) {
+    if (message.author.id==process.env.OWNER_ID) {
+		return "Not implemented yet";
+    } else return "You're not "+process.env.OWNER+".";
+}
+
+function servers(message) {
+    if (message.author.id==process.env.OWNER_ID) {
+        let list = message.client.guilds.keyArray();
+        let x = "";
+        for (let i=0;i<list.length;i++) {
+            let guild = message.client.guilds.find("id", list[i]);
+            x += guild.name;
+            x += " ("+guild.owner.user.username+")";
+            if (i!=list.length-1) x+="; ";
+        }
+
+        return x;
+    }
+    else return "You're not "+process.env.OWNER+".";
 }
 
 function globalsave(message) {
