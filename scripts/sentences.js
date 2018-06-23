@@ -79,7 +79,7 @@ class Brain {
         try {
             return this.generate();
         } catch (e) {
-            console.log("Brain#generate: Error -> "+e);
+            //console.log("Brain#generate: Error -> "+e);
             return "";
         }
     }

@@ -28,6 +28,7 @@ const cuddlepenalty = 60*60*1000;
 const jogcooldown = 60*60*1000;
 const foodcooldown = 1*60*60*1000;
 const cuddlecooldown = 15*60*1000;
+const traitcooldown = 3*60*1000;
 
 console.log("Waifus: loading.");
 
@@ -81,6 +82,10 @@ exports.help = function() {
 
 exports.shop = function() {
     return buyembed();
+}
+
+exports.trait = function(message) {
+    return trait(message);
 }
 
 exports.top = function(message) {
@@ -148,10 +153,11 @@ function help() {
     .addField("$waifu","Claim a random waifu for 5"+u.currency()+". Rerolling will make you lose all your progress!")
     .addField("$show waifu / $quick show waifu","Shows your waifu and her stats.")
     .addField("$name waifu","Give your waifu a name!")
-    .addField("$sleep with waifu","Sleep with your waifu for 2h. Can't do other activities while asleep!")
-    .addField("$jog with waifu","Do some exercise with your waifu. 1h cooldown!")
+    .addField("$sleep with waifu / $sleep waifu","Sleep with your waifu for 2h. Can't do other activities while asleep!")
+    .addField("$jog with waifu / $jog waifu","Do some exercise with your waifu. 1h cooldown!")
 	.addField("$pet waifu / $hug waifu / $kiss waifu","Show your waifu some love. 15 min cooldown!")
-	.addField("$buy waifu","Buy items for your waifu. Feeding your waifu has a 1h cooldown!")
+    .addField("$buy waifu","Buy items for your waifu. Feeding your waifu has a 1h cooldown!")
+    .addField("$trait waifu","Pick a trait for your waifu. Traits affect stat changes.")
     .addField("$shop waifu","Check what you can buy for your waifu.")
     .addField("$top waifus","Waifu leaderboard!");
 
@@ -203,23 +209,25 @@ function update(message) {
 
     let now = new Date().getTime();
 
+    applytrait(message.author.id.toString());
+
     if (taken[message.author.id.toString()].happy<0) taken[message.author.id.toString()].happy=0;
-    else if (taken[message.author.id.toString()].happy>100) taken[message.author.id.toString()].happy=100;
+    else if (taken[message.author.id.toString()].happy>105) taken[message.author.id.toString()].happy=105;
 
     if (taken[message.author.id.toString()].love<0) taken[message.author.id.toString()].love=0;
-    else if (taken[message.author.id.toString()].love>100) taken[message.author.id.toString()].love=100;
+    else if (taken[message.author.id.toString()].love>105) taken[message.author.id.toString()].love=105;
 
     if (taken[message.author.id.toString()].wealth<0) taken[message.author.id.toString()].wealth=0;
-    else if (taken[message.author.id.toString()].wealth>100) taken[message.author.id.toString()].wealth=100;
+    else if (taken[message.author.id.toString()].wealth>105) taken[message.author.id.toString()].wealth=105;
 
     if (taken[message.author.id.toString()].health<0) taken[message.author.id.toString()].health=0;
-    else if (taken[message.author.id.toString()].health>100) taken[message.author.id.toString()].health=100;
+    else if (taken[message.author.id.toString()].health>105) taken[message.author.id.toString()].health=105;
 
     if (taken[message.author.id.toString()].fit<0) taken[message.author.id.toString()].fit=0;
-    else if (taken[message.author.id.toString()].fit>100) taken[message.author.id.toString()].fit=100;
+    else if (taken[message.author.id.toString()].fit>105) taken[message.author.id.toString()].fit=105;
 
     if (taken[message.author.id.toString()].smart<0) taken[message.author.id.toString()].smart=0;
-    else if (taken[message.author.id.toString()].smart>100) taken[message.author.id.toString()].smart=100;
+    else if (taken[message.author.id.toString()].smart>105) taken[message.author.id.toString()].smart=105;
 
     if (now-taken[message.author.id.toString()].lastsleep>=sleeppenalty) { //havent slept for 8+ hours, every 30 min lower stats
         if (now-lastsleeppunishment>=30*60*1000) {
@@ -278,6 +286,89 @@ function name(message) { //$name waifu
         taken[message.author.id.toString()].name = text;
     }
     return message.author.username+"'s waifu is now "+text+"!";
+}
+
+function applytrait(id) {
+    let now = new Date().getTime();
+
+    if (now-taken[id].lasttraitchange<traitcooldown) return;
+
+    switch (taken[id].trait) {
+        case "Calm":
+            taken[id].health += 0.1;
+            taken[id].happy += 0.1;
+            taken[id].fit -= 0.1;
+            break;
+        case "Loyal":
+            taken[id].love *= 1.005;
+            taken[id].happy *= 1.005;
+            taken[id].smart -= 0.1;
+            taken[id].health -= 0.2;
+            break;
+        case "Curious":
+            taken[id].smart += 0.15;
+            taken[id].happy += 0.1;
+            taken[id].wealth -= 0.1;
+            break;
+        case "Valiant":
+            taken[id].smart += 0.1;
+            taken[id].fit += 0.1;
+            taken[id].happy -= 0.05;
+            taken[id].love -= 0.05;
+            break;
+        case "Serious":
+            taken[id].smart += 0.2;
+            taken[id].happy -= 0.05;
+            taken[id].love -= 0.05;
+            break;
+        case "Leader":
+            taken[id].smart += 0.15;
+            taken[id].fit += 0.05;
+            taken[id].love -= 0.05;
+            break;
+        case "Wild":
+            taken[id].fit += 0.1;
+            taken[id].happy += 0.1;
+            taken[id].love += 0.05;
+            taken[id].health -= 0.1;
+            break;
+        case "Playful":
+            taken[id].fit += 0.1;
+            taken[id].happy += 0.15;
+            taken[id].love += 0.05;
+            taken[id].health -= 0.05;
+            taken[id].wealth -= 0.15;    
+            break;
+        case "Careful":
+            taken[id].happy -= 0.1;
+            taken[id].health += 0.1;
+            taken[id].wealth += 0.1;    
+            break;
+    }
+
+    taken[id].lasttraitchange = now;
+}
+
+function trait(message) { //$trait waifu
+    if (!taken[message.author.id.toString()])
+        return message.author.username+" has not claimed a waifu yet. Use '$waifu'.";
+
+    let errorstring = message.author.username+", usage is '$trait waifu choice'.\n\n"+
+    "The choices are -> Calm, Loyal, Curious, Valiant, Serious, Leader, Wild, Playful, Careful, None.";
+
+    if (!message.content.includes("$trait waifu "))
+        return errorstring;
+
+    let text = message.content.replace("$trait waifu ","").toLowerCase();
+
+    if (text==="calm" || text==="loyal" || text==="curious" || text==="valiant" || text==="serious" ||
+        text==="leader" || text==="wild" || text==="playful" || text==="careful" || text==="none") {
+            taken[message.author.id.toString()].trait = ut.capitalize(text);
+            return resolvename(message)+" now has the trait "+ut.capitalize(text)+"!";
+        } else {
+            return errorstring;
+        }
+
 }
 
 function jog(message) { //$jog with waifu
@@ -525,6 +616,7 @@ function show(message) {
             newm => {
 
         let n = obj.name;
+        let t = obj.trait;
         let he = numtoscale(obj.health);
         let ha = numtoscale(obj.happy);
         let l = numtoscale(obj.love);
@@ -568,7 +660,7 @@ function show(message) {
         .setFooter(message.author.username+"'s waifu", message.author.avatarURL)
         .setImage("attachment://image.png")
         .addField("Name", n)
-        .addField("Health ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Happy ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Smart", he+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ "+ha+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­"+s)
+        .addField("Health ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Happy ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Smart ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Trait", he+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ "+ha+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­"+s+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­"+t)
         .addField("Love ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Wealth ­ ­ ­ ­ ­ ­ ­ ­ ­ ­Fitness", l+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ "+w+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­  ­­"+f)
         .addField("Status",status);      
 
@@ -604,6 +696,7 @@ function quickshow(message) {
         let obj = taken[uid];
 
         let n = obj.name;
+        let t = obj.trait;
         let he = numtoscale(obj.health);
         let ha = numtoscale(obj.happy);
         let l = numtoscale(obj.love);
@@ -642,7 +735,7 @@ function quickshow(message) {
         .setColor('#FF0000')
         .setFooter(message.author.username+"'s waifu", message.author.avatarURL)
         .addField("Name", n)
-        .addField("Health ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Happy ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Smart", he+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ "+ha+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­"+s)
+        .addField("Health ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Happy ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Smart ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Trait", he+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ "+ha+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­"+s+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­"+t)
         .addField("Love ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Wealth ­ ­ ­ ­ ­ ­ ­ ­ ­ ­Fitness", l+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ "+w+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­  ­­"+f)
         .addField("Status",status);      
 
@@ -804,7 +897,7 @@ function load() {
 }
 
 function newwaifu(folder,pic) {
-    return {folder: folder, pic: pic, name: "-", health: 60, love: 60, happy: 60, wealth: 60, smart: 20, fit: 20, lastsleep: 1, lastcuddled: 1, lastfed: 1, lastjogged: 1};
+    return {folder: folder, pic: pic, name: "-", health: 60, love: 60, happy: 60, wealth: 60, smart: 20, fit: 20, lastsleep: 1, lastcuddled: 1, lastfed: 1, lastjogged: 1, trait: "None", lasttraitchange: 1};
 }
 
 function pictaken(file) {
