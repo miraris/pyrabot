@@ -35,6 +35,10 @@ exports.waifu = function(message) {
     return waifu(message);
 }
 
+exports.rerollwaifu = function(message) {
+    return rerollwaifu(message);
+}
+
 exports.show = function(message) {
     return show(message);
 }
@@ -285,7 +289,7 @@ function jog(message) { //$jog with waifu
 
     if (now-taken[message.author.id.toString()].lastjog<jogcooldown) {
         let end = taken[message.author.id.toString()].lastjog+jogcooldown;
-        return resolvename(message)+"is still tired from jogging! (wait"+ut.timediffstring(end,now)+")";
+        return resolvename(message)+" is still tired from jogging! (wait"+ut.timediffstring(end,now)+")";
     }
 
     taken[message.author.id.toString()].health += 5;
@@ -571,19 +575,67 @@ function show(message) {
 }
 
 function waifu(message) {
+    let uid = message.author.id.toString();
+
     if (!message.channel.nsfw) {
         return "Please only use '$waifu' in nsfw rooms!";
-    } else if (!u.deductcurrency(message.author.id.toString(), 5)) {
+    } else if (!u.deductcurrency(uid, 5)) {
+        return message.author.username+" does not have enough "+u.currency()+" to roll a new waifu!";
+    } else {
+
+        if (taken[uid]) {
+            let total = taken[uid].health + 
+                    taken[uid].wealth + 
+                    taken[uid].happy + 
+                    taken[uid].smart + 
+                    taken[uid].fit + 
+                    taken[uid].love;
+            
+            if (total>280 || taken[uid].name !== "-") {
+                u.addcurrency(uid, 5);
+                return message.author.username+", are you sure? You'll lose all your progress. Type '$reroll waifu' if that is your choice.";
+            }
+        }
+
+        let choice = random(opt);
+
+        if (choice.includes(url)) 
+            taken[uid] = newwaifu("url1", choice.replace(url,""));
+        else if (choice.includes(url2)) 
+            taken[uid] = newwaifu("url2", choice.replace(url2,""));
+        else
+            taken[uid] = newwaifu("url3", choice.replace(url3,""));
+
+        for (let x=0;x<opt.length;x++) {
+            if (opt[x] == choice) opt.splice(x,1);
+        }
+        save();
+
+        const embed = new discord.RichEmbed()
+        .setColor('#FF0000')
+        .setFooter(message.author.username+" has rolled this waifu!", message.author.avatarURL)
+        .setImage("attachment://image.png");
+
+        return {embed, files: [{ attachment: choice, name: 'image.png' }]};
+    }
+}
+
+function rerollwaifu(message) {
+    let uid = message.author.id.toString();
+
+    if (!message.channel.nsfw) {
+        return "Please only use '$reroll waifu' in nsfw rooms!";
+    } else if (!u.deductcurrency(uid, 5)) {
         return message.author.username+" does not have enough "+u.currency()+" to roll a new waifu!";
     } else {
         let choice = random(opt);
 
         if (choice.includes(url)) 
-            taken[message.author.id.toString()] = newwaifu("url1", choice.replace(url,""));
+            taken[uid] = newwaifu("url1", choice.replace(url,""));
         else if (choice.includes(url2)) 
-            taken[message.author.id.toString()] = newwaifu("url2", choice.replace(url2,""));
+            taken[uid] = newwaifu("url2", choice.replace(url2,""));
         else
-            taken[message.author.id.toString()] = newwaifu("url3", choice.replace(url3,""));
+            taken[uid] = newwaifu("url3", choice.replace(url3,""));
 
         for (let x=0;x<opt.length;x++) {
             if (opt[x] == choice) opt.splice(x,1);
