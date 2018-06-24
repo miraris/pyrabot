@@ -58,9 +58,17 @@ const capitalize = (str) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
+/**
+ * Returns a random element from an array
+ *
+ * @param {Array} arr 
+ */
+const random = (arr) => arr[Math.floor(Math.random() * ((arr.length-1)))];
+
 module.exports = {
     fromOwner,
     prettyNumber,
     timeDiffToString,
-    capitalize
+    capitalize,
+    random
 };
