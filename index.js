@@ -33,7 +33,7 @@ bot.on('message', (message) => {
     w.update(message);
 
     //cmds with args
-    if (cmd.startsWith(p+"gamble")) message.channel.send(g.gamble(message));
+    if (cmd.startsWith(p+"gamble")) g.gamble(message).then(res => message.channel.send(res)).catch(err => console.error(err));
     else if (cmd.startsWith(p+"name waifu")) message.channel.send(w.name(message));
     else if (cmd.startsWith(p+"buy waifu")) message.channel.send(w.buy(message));
     else if (cmd.startsWith(p+"trait waifu")) message.channel.send(w.trait(message));

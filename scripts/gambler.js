@@ -8,7 +8,7 @@ console.log("Gambler: loading.");
  * @param message
  * @returns {string}
  */
-function gamble(message) {
+async function gamble(message) {
     const author = message.author.username;
     let args = message.content.split(" ");
 
