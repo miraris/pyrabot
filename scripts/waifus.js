@@ -381,12 +381,12 @@ function jog(message) { //$jog with waifu
 
     if (now-taken[message.author.id.toString()].lastsleep<sleepduration) {
         let end = taken[message.author.id.toString()].lastsleep+sleepduration;
-        return sleepingtext(message)+" (wait" +h.timeDiffToString(end,now)+")";
+        return sleepingText(message)+" (wait " +h.timeDiffToString(end,now)+")";
     }
 
     if (now-taken[message.author.id.toString()].lastjog<jogcooldown) {
         let end = taken[message.author.id.toString()].lastjog+jogcooldown;
-        return resolvename(message)+" is still tired from jogging! (wait" +h.timeDiffToString(end,now)+")";
+        return resolvename(message)+" is still tired from jogging! (wait " +h.timeDiffToString(end,now)+")";
     }
 
     taken[message.author.id.toString()].health += 5;
@@ -405,14 +405,14 @@ function sleep(message) { //$sleep with waifu
 
     if (now-taken[message.author.id.toString()].lastsleep<sleepduration) {
         let end = taken[message.author.id.toString()].lastsleep+sleepduration;
-        return sleepingtext(message)+" (wait" +h.timeDiffToString(end,now)+")";
+        return sleepingText(message)+" (wait " +h.timeDiffToString(end,now)+")";
     }
 
     taken[message.author.id.toString()].health += 10;
     taken[message.author.id.toString()].happy += 5;
     taken[message.author.id.toString()].love += 3;
     taken[message.author.id.toString()].lastsleep = now;
-    return sleeptext(message);
+    return sleepText(message);
 }
 
 function cuddle(message) { //pet hug kiss
@@ -423,12 +423,12 @@ function cuddle(message) { //pet hug kiss
 
     if (now-taken[message.author.id.toString()].lastsleep<sleepduration) {
         let end = taken[message.author.id.toString()].lastsleep+sleepduration;
-        return sleepingtext(message)+" (wait" +h.timeDiffToString(end,now)+")";
+        return sleepingText(message)+" (wait " +h.timeDiffToString(end,now)+")";
     }
 
     if (now-taken[message.author.id.toString()].lastcuddled<cuddlecooldown) {
         let end = taken[message.author.id.toString()].lastcuddled+cuddlecooldown;
-        return clingyText(message)+" (wait" +h.timeDiffToString(end,now)+")";
+        return clingyText(message)+" (wait " +h.timeDiffToString(end,now)+")";
     }
 
     switch (message.content) {
@@ -458,7 +458,7 @@ function buy(message) { //$buy waifu
 	
     if (now-taken[message.author.id.toString()].lastsleep<sleepduration) {
         let end = taken[message.author.id.toString()].lastsleep+sleepduration;
-        return sleepingtext(message)+" (wait" +h.timeDiffToString(end,now)+")";
+        return sleepingText(message)+" (wait " +h.timeDiffToString(end,now)+")";
     }
 
     if (!message.content.includes("$buy waifu "))
@@ -508,7 +508,7 @@ function buy(message) { //$buy waifu
     case "veggies":
         if (now-taken[message.author.id.toString()].lastfed<foodcooldown) {
             let end = taken[message.author.id.toString()].lastfed+foodcooldown;
-            return resolvename(message)+" isn't hungry yet! (wait" +h.timeDiffToString(end,now)+")";
+            return resolvename(message)+" isn't hungry yet! (wait " +h.timeDiffToString(end,now)+")";
         }
         else if (!u.deductcurrency(message.author.id.toString(), 15)) {
             return `${message.author.username} does not have enough ${u.currency()}`;
@@ -523,7 +523,7 @@ function buy(message) { //$buy waifu
     case "fish":
         if (now-taken[message.author.id.toString()].lastfed<foodcooldown) {
             let end = taken[message.author.id.toString()].lastfed+foodcooldown;
-            return resolvename(message)+" isn't hungry yet! (wait" +h.timeDiffToString(end,now)+")";
+            return resolvename(message)+" isn't hungry yet! (wait " +h.timeDiffToString(end,now)+")";
         }
         else if (!u.deductcurrency(message.author.id.toString(), 35)) {
             return `${message.author.username} does not have enough ${u.currency()}`;
@@ -538,7 +538,7 @@ function buy(message) { //$buy waifu
     case "meat":
         if (now-taken[message.author.id.toString()].lastfed<foodcooldown) {
             let end = taken[message.author.id.toString()].lastfed+foodcooldown;
-            return resolvename(message)+" isn't hungry yet! (wait" +h.timeDiffToString(end,now)+")";
+            return resolvename(message)+" isn't hungry yet! (wait " +h.timeDiffToString(end,now)+")";
         }
         else if (!u.deductcurrency(message.author.id.toString(), 40)) {
             return `${message.author.username} does not have enough ${u.currency()}`;
@@ -862,28 +862,34 @@ function petText(message) {
 }
 
 function sleepText(message) {
-    let a = ["You head to bed and "+resolvenamef(message)+" follows up to keep you company and cuddle up all night. See you later!",
-            resolvenameF(message)+" drags herself into bed for some refreshing rest, she'll be back later. Sleep tight, "+resolvenamef(message)+"!",
-            resolvenameF(message)+" grabs your hand and asks to go sleep with you, how can you say no to that face? Rest well!",
-            resolvenameF(message)+" crashes on your bed, just waiting for you to join her before she starts sleeping. Don't make her wait!"];
+    const a = [
+        "You head to bed and "+resolvenamef(message)+" follows up to keep you company and cuddle up all night. See you later!",
+        resolvenameF(message)+" drags herself into bed for some refreshing rest, she'll be back later. Sleep tight, "+resolvenamef(message)+"!",
+        resolvenameF(message)+" grabs your hand and asks to go sleep with you, how can you say no to that face? Rest well!",
+        resolvenameF(message)+" crashes on your bed, just waiting for you to join her before she starts sleeping. Don't make her wait!"
+    ];
 
     return h.random(a); 
 }
 
 function clingyText(message) {
-    let a = ["It looks like "+resolvenamef(message)+" doesn't feel like a public display of affection right now. Give her some space.",
-            "Mmh... "+resolvenamef(message)+" seems busy. It looks like trying to be affectionate is just going to disturb her. Leave her be for now.",
-            "You lean in to cuddle "+resolvenamef(message)+" a little, but she pushes you away gently. Guess she's not up for that right now.",
-            "You go up to "+resolvenamef(message)+" but she softly voices to you she thinks you're being too clingy. Maybe you shouldn't be too push."];
+    const a = [
+        "It looks like "+resolvenamef(message)+" doesn't feel like a public display of affection right now. Give her some space.",
+        "Mmh... "+resolvenamef(message)+" seems busy. It looks like trying to be affectionate is just going to disturb her. Leave her be for now.",
+        "You lean in to cuddle "+resolvenamef(message)+" a little, but she pushes you away gently. Guess she's not up for that right now.",
+        "You go up to "+resolvenamef(message)+" but she softly voices to you she thinks you're being too clingy. Maybe you shouldn't be too push."
+    ];
 
     return h.random(a); 
 }
 
-function sleepingtext(message) {
-    let a = ["Sssshh... "+resolvenamef(message)+" looks really cute when she sleeps. Let's not disturb her.",
-            "It looks like "+resolvenamef(message)+" is having a good dream. Let's back away quietly.",
-            resolvenameF(message)+" is still resting, looking really comfortable. Come back later!",
-            resolvenameF(message)+"'s eyes flutter, she twitches a little, whispers a word, but she's sound asleep nonetheless. Let her sleep some more."];
+function sleepingText(message) {
+    const a = [
+        "Sssshh... "+resolvenamef(message)+" looks really cute when she sleeps. Let's not disturb her.",
+        "It looks like "+resolvenamef(message)+" is having a good dream. Let's back away quietly.",
+        resolvenameF(message)+" is still resting, looking really comfortable. Come back later!",
+        resolvenameF(message)+"'s eyes flutter, she twitches a little, whispers a word, but she's sound asleep nonetheless. Let her sleep some more."
+    ];
 
     return h.random(a);     
 }
