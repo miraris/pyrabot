@@ -34,68 +34,6 @@ console.log("Waifus: loading.");
 
 const numtoscale = (n) => Math.floor(n/20)+"/5";
 
-// exports.waifu = function(message) {
-//     return waifu(message);
-// }
-
-// exports.rerollwaifu = function(message) {
-//     return rerollwaifu(message);
-// }
-
-// exports.show = function(message) {
-//     return show(message);
-// }
-
-// exports.quickshow = function(message) {
-//     return quickshow(message);
-// }
-
-// exports.save = function() {
-//     return save();
-// }
-
-// exports.name = function(message) {
-//     return name(message);
-// }
-
-// exports.buy = function(message) {
-//     return buy(message);
-// }
-
-// exports.cuddle = function(message) {
-//     return cuddle(message);
-// }
-
-// exports.sleep = function(message) {
-//     return sleep(message);
-// }
-
-// exports.jog = function(message) {
-//     return jog(message);
-// }
-
-// exports.update = function(message) {
-//     return update(message);
-// }
-
-// exports.help = function() {
-//     return help();
-// }
-
-// exports.shop = function() {
-//     return buyembed();
-// }
-
-// exports.trait = function(message) {
-//     return trait(message);
-// }
-
-// exports.top = function(message) {
-//     return top(message);
-// }
-
-
-
 function resolvename(message) {
     if (taken[message.author.id.toString()].name !== "-")
         return taken[message.author.id.toString()].name;
@@ -153,6 +91,7 @@ function help() {
         .addField("$waifu","Claim a random waifu for 5"+u.currency()+". Rerolling will make you lose all your progress!")
         .addField("$show waifu / $quick show waifu","Shows your waifu and her stats.")
         .addField("$name waifu","Give your waifu a name!")
+        .addField("$class waifu","Assign your waifu a class! Requires a minimum of 18 ★.")
         .addField("$sleep with waifu / $sleep waifu","Sleep with your waifu for 2h. Can't do other activities while asleep!")
         .addField("$jog with waifu / $jog waifu","Do some exercise with your waifu. 1h cooldown!")
         .addField("$pet waifu / $hug waifu / $kiss waifu","Show your waifu some love. 15 min cooldown!")
@@ -191,7 +130,7 @@ function top(message) {
         let index = 1;
 
         for (let i=0;i<array.length;i++) {
-            if (i==10) break;
+            if (index==10) break;
             let member = message.guild.members.find("id", array[i].id.toString())
             if (member!=null) {
                 let name = member.user.username;
@@ -344,9 +283,271 @@ function applytrait(id) {
         taken[id].health += 0.1;
         taken[id].wealth += 0.1;    
         break;
+    case "Evil":
+        taken[id].happy -= 0.2;
+        taken[id].wealth += 0.4;    
+        break;   
+    case "Doting":
+        taken[id].happy -= 0.2;
+        taken[id].love += 0.4;    
+        break;  
+    case "Charming":
+        taken[id].fit += 0.2;
+        taken[id].smart += 0.2;
+        taken[id].love -= 0.2;
+        break;  
     }
 
     taken[id].lasttraitchange = now;
+}
+
+/**
+ * Get tier for a waifu class
+ *
+ * @param {string} cl
+ * @returns {string} tier
+ */
+function getClassTier(cl) {
+    switch (cl) {
+        case "Worldshaper": return "(Tier S)";
+        case "Soul Devourer": return "(Tier S)";
+        case "Ethereal": return "(Tier S)";
+        case "Prodigy": return "(Tier B+)";
+        case "Goddess": return "(Tier A)";
+        case "Demoness": return "(Tier A)";
+        case "Myth": return "(Tier A)";
+        case "Angel": return "(Tier B+)";
+        case "Dark Angel": return "(Tier B+)";
+        case "Assassin": return "(Tier B)";
+        case "Yandere": return "(Tier B)";
+        case "Reaper": return "(Tier B)";
+        case "Succubus": return "(Tier B)";
+        case "Magical Girl": return "(Tier B)";
+        case "Cursed Girl": return "(Tier B)";
+        case "Scientist": return "(Tier C+)";
+        case "Mage": return "(Tier C+)";
+        case "Necromancer": return "(Tier C+)";
+        case "Cheerleader": return "(Tier C+)";
+        case "Warrior": return "(Tier B)";
+        case "Knight": return "(Tier B)";
+        case "Athlete": return "(Tier C+)";
+        case "Dreamer": return "(Tier C+)";
+        case "Cupid": return "(Tier C+)";
+        case "Eternal": return "(Tier C+)";
+        case "Queen": return "(Tier C+)";
+        case "Alchemist": return "(Tier C+)";
+        case "Commander": return "(Tier C+)";
+        case "Mercenary": return "(Tier C+)";
+        case "Adventurer": return "(Tier C)";
+        case "Pet": return "(Tier C)";
+        default: return "(?)";
+    }
+}
+
+/**
+ * Get list of available classes for waifu
+ *
+ * @param {object} id
+ * @returns {string[]} string array
+ */
+function getClassChoices(id) {
+    let o = taken[id];
+    let res = [];
+
+    if (o.health>=90 && o.wealth>=90 && o.love>=90 && o.happy>=90 && o.smart>=50 && o.fit>=50) 
+        res.push("Prodigy");
+
+    if (o.health>=100 && o.wealth>=100 && o.love>=100 && o.happy>=100 && o.smart>=80 && o.fit>=80
+        && (o.trait=="Calm" || o.trait=="Loyal" || o.trait=="Playful" || o.trait=="Charming"
+            || o.trait=="Determinated"))
+        res.push("Goddess");
+    
+    if (o.health>=100 && o.wealth>=100 && o.love>=100 && o.happy>=100 && o.smart>=80 && o.fit>=80
+        && (o.trait=="Evil" || o.trait=="Serious" || o.trait=="Leader" || o.trait=="Wild"
+            || o.trait=="Vengeful"))
+        res.push("Demoness");
+    
+    if (o.health>=100 && o.wealth>=100 && o.love>=100 && o.happy>=100 && o.smart>=80 && o.fit>=80
+		&& (o.trait=="Curious" || o.trait=="Valiant" || o.trait=="Careful" || o.trait=="Doting"
+			|| o.trait=="Charming" || o.trait=="None" || o.trait=="Volatile"))
+        res.push("Myth");
+
+    if (o.fit>=40 && o.love>=80 && o.trait!="Evil" && o.trait!="Serious" && o.trait!="Vengeful")
+        res.push("Angel");
+
+    if (o.fit>=40 && o.love>=80 && (o.trait=="Evil" || o.trait=="Serious" || o.trait=="Vengeful"))
+        res.push("Dark Angel");
+
+    if (o.fit>=50 && o.health>=85 && (o.trait=="Calm" || o.trait=="Serious" || o.trait=="Careful"))
+        res.push("Assassin");
+
+    if (o.fit>=50 && o.health>=85 && 
+        (o.trait=="Doting" || o.trait=="Charming" || o.trait=="Playful" || o.trait=="Loyal"
+            || o.trait=="Vengeful" || o.trait=="Volatile"))
+        res.push("Yandere");
+
+    if (o.fit>=50 && o.health>=85 && o.smart>=50 && 
+        (o.trait=="Calm" || o.trait=="Serious" || o.trait=="Evil" || o.trait=="Vengeful"))
+        res.push("Reaper");
+
+    if (o.love>=90 && o.happy>=85 && o.smart>=50 && o.fit>=50 &&
+        (o.trait=="Charming" || o.trait=="Wild" || o.trait=="Playful" || o.trait=="Evil"
+            || o.trait=="Volatile"))
+        res.push("Succubus");
+
+    if (o.love>=90 && o.happy>=90 && 
+        (o.trait=="Loyal" || o.trait=="Curious" || o.trait=="Valiant" || o.trait=="None"
+            || o.trait=="Determinated"))
+        res.push("Magical Girl");
+    
+    if (o.love>=90 && o.smart>=60 && 
+        (o.trait=="Careful" || o.trait=="Serious" || o.trait=="Evil" || o.trait=="None"
+            || o.trait=="Volatile"))
+        res.push("Cursed Girl");    
+
+    if (o.wealth>=90 && o.smart>=40 && 
+        (o.trait=="Curious" || o.trait=="Serious" || o.trait=="Wild" || o.trait=="None"
+            || o.trait=="Determinated"))
+        res.push("Scientist");    
+
+    if (o.wealth>=80 && o.smart>=30 && o.fit>=30 &&
+        o.trait!="Wild" && o.trait!="Serious" && o.trait!="Evil")
+        res.push("Mage");  
+
+    if (o.wealth>=80 && o.smart>=30 && o.fit>=30 &&
+        (o.trait=="Wild" || o.trait=="Serious" || o.trait=="Evil"))
+        res.push("Necromancer");  
+
+    if (o.happy>=100 &&
+        (o.trait=="Loyal" || o.trait=="Wild" || o.trait=="Playful" || o.trait=="None" 
+            || o.trait=="Determinated"))
+        res.push("Cheerleader"); 
+
+    if (o.health>=85 && o.fit>=40)
+        res.push("Warrior");
+    
+    if (o.health>=90 && o.fit>=45 &&
+        (o.trait=="Valiant" || o.trait=="Wild" || o.trait=="Loyal" || o.trait=="Determinated"))
+        res.push("Knight");
+        
+    if (o.fit>=80)
+        res.push("Athlete");
+        
+    if (o.love>=100)
+        res.push("Dreamer");
+    
+    if (o.love>=90 &&
+        (o.trait=="Charming" || o.trait=="Doting" || o.trait=="Wild" || o.trait=="Playful"))
+        res.push("Cupid");
+        
+    if (o.health>=100)
+        res.push("Eternal");
+        
+    if (o.wealth>=100 &&
+        (o.trait=="Leader" || o.trait=="Serious" || o.trait=="Calm" || o.trait=="Vengeful"))
+        res.push("Queen");
+        
+    if (o.smart>=80 &&
+        (o.trait=="Curious" || o.trait=="Wild" || o.trait=="Playful" || o.trait=="Evil"))
+        res.push("Alchemist"); 
+
+    if (o.fit>=45 && o.health>=90 &&
+        (o.trait=="Serious" || o.trait=="Leader" || o.trait=="Determinated"))
+        res.push("Commander"); 
+
+    if (o.health>=90 && o.fit>=45 &&
+        (o.trait=="Calm" || o.trait=="Careful" || o.trait=="Evil" || o.trait=="Vengeful"))
+        res.push("Mercenary"); 
+
+    if (o.fit>=60 && o.happy>=85 &&
+        (o.trait=="Valiant" || o.trait=="Curious" || o.trait=="None" || o.trait=="Volatile"))
+        res.push("Adventurer"); 
+
+    res.push("Pet");
+
+    return res;
+}
+
+/**
+ * Builds class options embed ($class waifu)
+ *
+ * @param {string[]} options
+ * @param {object} message
+ * @returns {object} embed
+ */
+function classesembed(options, message) {
+    const embed = new discord.RichEmbed()
+    .setAuthor("~~ Class options ~~", "https://cdn.discordapp.com/avatars/456934877841981462/5a880bec4e424aab34fcf6f62cc8a363.png?size=128")
+    .setColor("#FF0000")
+    .setFooter(message.author.username+"'s waifu", message.author.avatarURL)
+    .setTitle("Here are the available classes for "+resolvenamef(message)+":");
+    let str = "";
+    for (let i=0;i<options.length;i++) {
+        str += "• "+options[i]+" "+"\n";
+    }
+    embed.addField("­",str, true);
+
+    return {embed};
+}
+
+/**
+ * Waifu class command ($class waifu)
+ *
+ * @param {object} message
+ * @returns {string} string
+ */
+function classes(message) {
+    const uid = message.author.id.toString();
+
+    if (!taken[uid]) return `${message.author.username} has not claimed a waifu yet. Use '$waifu'.`;
+
+    let options = getClassChoices(uid);
+
+    let total = Math.floor(taken[uid].health/20) + 
+        Math.floor(taken[uid].wealth/20) + 
+            Math.floor(taken[uid].happy/20) + 
+                Math.floor(taken[uid].smart/20) + 
+                    Math.floor(taken[uid].fit/20) + 
+                        Math.floor(taken[uid].love/20);
+
+    if (total<18) return message.author.username+", "+resolvenamef(message)+" requires at least 18 ★ to be assigned a class (currently at "+total+" ★).";
+
+    if (!message.content.includes("$class waifu ")) return classesembed(options, message);
+
+    const text = message.content.replace("$class waifu ", "").toLowerCase();
+    
+    for (let x=0;x<options.length;x++) {
+        if (options[x].toLowerCase()===text) {
+            taken[uid].cl = options[x];
+            return message.author.username+", "+resolvenamef(message)+"'s class is now "+options[x]+"!";
+        }
+    }
+
+    return classesembed(options, message);
+}
+
+/**
+ * Builds trait options embed ($trait waifu)
+ *
+ * @param {string[]} options
+ * @param {object} message
+ * @returns {object} embed
+ */
+function traitsembed(traits) {
+    const embed = new discord.RichEmbed()
+    .setAuthor("~~ Trait options ~~", "https://cdn.discordapp.com/avatars/456934877841981462/5a880bec4e424aab34fcf6f62cc8a363.png?size=128")
+    .setColor("#FF0000")
+    .setTitle("Here are all the available traits:");
+    let str = "";
+    let str2 = "";
+    for (let i=0;i<traits.length;i++) {
+        if (i<traits.length/2) str += "• "+h.capitalize(traits[i])+" "+"\n";
+        else str2 += "• "+h.capitalize(traits[i])+" "+"\n";
+    }
+    embed.addField("­",str, true);
+    embed.addField("­",str2, true);
+
+    return {embed};
 }
 
 /**
@@ -358,19 +559,24 @@ function applytrait(id) {
 function trait(message) {
     if (!taken[message.author.id.toString()]) return `${message.author.username} has not claimed a waifu yet. Use '$waifu'.`;
 
-    const traits = ["calm", "loyal", "curious", "valiant", "serious", "leader", "wild", "playful", "careful", "none"];
-    const errorstring = `${message.author.username}, usage is '$trait waifu choice'.\n\n The choices are -> ${traits.map(t => h.capitalize(t)).join(", ")}`;
+    const traits = ["calm", "loyal", "curious", "valiant", "serious", "leader", "wild", "playful", 
+            "careful", "evil", "doting", "charming", "volatile", "vengeful", "determinated", "none"];
 
-    if (!message.content.includes("$trait waifu ")) return errorstring;
+    if (!message.content.includes("$trait waifu ")) return traitsembed(traits);
 
     const text = message.content.replace("$trait waifu ", "").toLowerCase();
 
     if (traits.includes(text)) {
         taken[message.author.id.toString()].trait = h.capitalize(text);
-        return `${resolvename(message)} now has the trait ${h.capitalize(text)}`;
+        let res = `${resolvename(message)} now has the trait ${h.capitalize(text)}.`;
+        if (taken[message.author.id.toString()].cl!="-") {
+            taken[message.author.id.toString()].cl = "-";
+            res += " Her class has been reset.";
+        }
+        return res;
     }
 
-    return errorstring;
+    return traitsembed(traits);
 }
 
 function jog(message) { //$jog with waifu
@@ -386,7 +592,7 @@ function jog(message) { //$jog with waifu
 
     if (now-taken[message.author.id.toString()].lastjog<jogcooldown) {
         let end = taken[message.author.id.toString()].lastjog+jogcooldown;
-        return resolvename(message)+" is still tired from jogging! (wait " +h.timeDiffToString(end,now)+")";
+        return jogCooldownText(message)+" (wait " +h.timeDiffToString(end,now)+")";
     }
 
     taken[message.author.id.toString()].health += 5;
@@ -394,7 +600,7 @@ function jog(message) { //$jog with waifu
     taken[message.author.id.toString()].love += 1;
     taken[message.author.id.toString()].fit += 3;
     taken[message.author.id.toString()].lastjog = now;
-    return resolvename(message)+" goes for a jog with "+message.author.username+"!";
+    return jogText(message);
 }
 
 function sleep(message) { //$sleep with waifu
@@ -475,7 +681,7 @@ function buy(message) { //$buy waifu
         taken[message.author.id.toString()].love += 1;
         taken[message.author.id.toString()].smart += 2.5;
 
-        return resolvename(message)+" appreciates "+message.author.username+"'s book!";
+        return bookText(message);
     case "movie":
         if (!u.deductcurrency(message.author.id.toString(), 75)) {
             return `${message.author.username} does not have enough ${u.currency()}`;
@@ -484,7 +690,7 @@ function buy(message) { //$buy waifu
         taken[message.author.id.toString()].love += 1;
         taken[message.author.id.toString()].smart += 1.5;
 
-        return resolvename(message)+" appreciates "+message.author.username+"'s movie!";
+        return movieText(message);
     case "dress":
         if (!u.deductcurrency(message.author.id.toString(), 150)) {
             return `${message.author.username} does not have enough ${u.currency()}`;
@@ -494,7 +700,7 @@ function buy(message) { //$buy waifu
         taken[message.author.id.toString()].wealth += 5;
         taken[message.author.id.toString()].love += 2;
 
-        return resolvename(message)+" feels great wearing "+message.author.username+"'s gift!";
+        return dressText(message);
     case "jewels":
         if (!u.deductcurrency(message.author.id.toString(), 180)) {
             return `${message.author.username} does not have enough ${u.currency()}`;
@@ -504,11 +710,11 @@ function buy(message) { //$buy waifu
         taken[message.author.id.toString()].wealth += 6;
         taken[message.author.id.toString()].love += 2;
 
-        return resolvename(message)+" feels great wearing "+message.author.username+"'s gift!";
+        return jewelsText(message);
     case "veggies":
         if (now-taken[message.author.id.toString()].lastfed<foodcooldown) {
             let end = taken[message.author.id.toString()].lastfed+foodcooldown;
-            return resolvename(message)+" isn't hungry yet! (wait " +h.timeDiffToString(end,now)+")";
+            return notHungryText(message)+" (wait " +h.timeDiffToString(end,now)+")";
         }
         else if (!u.deductcurrency(message.author.id.toString(), 15)) {
             return `${message.author.username} does not have enough ${u.currency()}`;
@@ -519,11 +725,11 @@ function buy(message) { //$buy waifu
         taken[message.author.id.toString()].love += 1;
         taken[message.author.id.toString()].lastfed = now;
 
-        return resolvename(message)+" enjoys a healthy diet proposed by "+message.author.username+"!";
+        return veggiesText(message);
     case "fish":
         if (now-taken[message.author.id.toString()].lastfed<foodcooldown) {
             let end = taken[message.author.id.toString()].lastfed+foodcooldown;
-            return resolvename(message)+" isn't hungry yet! (wait " +h.timeDiffToString(end,now)+")";
+            return notHungryText(message)+" (wait " +h.timeDiffToString(end,now)+")";
         }
         else if (!u.deductcurrency(message.author.id.toString(), 35)) {
             return `${message.author.username} does not have enough ${u.currency()}`;
@@ -534,11 +740,11 @@ function buy(message) { //$buy waifu
         taken[message.author.id.toString()].love += 1;
         taken[message.author.id.toString()].lastfed = now;
 
-        return resolvename(message)+" likes the fish dish made by "+message.author.username+"!";
+        return fishText(message);
     case "meat":
         if (now-taken[message.author.id.toString()].lastfed<foodcooldown) {
             let end = taken[message.author.id.toString()].lastfed+foodcooldown;
-            return resolvename(message)+" isn't hungry yet! (wait " +h.timeDiffToString(end,now)+")";
+            return notHungryText(message)+" (wait " +h.timeDiffToString(end,now)+")";
         }
         else if (!u.deductcurrency(message.author.id.toString(), 40)) {
             return `${message.author.username} does not have enough ${u.currency()}`;
@@ -550,7 +756,7 @@ function buy(message) { //$buy waifu
         taken[message.author.id.toString()].love += 1;
         taken[message.author.id.toString()].lastfed = now;
 
-        return resolvename(message)+" loves the meat dish cooked by "+message.author.username+"!";
+        return meatText(message);
     case "chocolate":
         if (!u.deductcurrency(message.author.id.toString(), 20)) {
             return `${message.author.username} does not have enough ${u.currency()}`;
@@ -560,7 +766,7 @@ function buy(message) { //$buy waifu
         taken[message.author.id.toString()].fit -= 1.5;
         taken[message.author.id.toString()].love += 1.5;
 
-        return resolvename(message)+" happily eats "+message.author.username+"'s chocolate box!";
+        return chocolateText(message);
     case "flowers":
         if (!u.deductcurrency(message.author.id.toString(), 45)) {
             return `${message.author.username} does not have enough ${u.currency()}`;
@@ -569,7 +775,7 @@ function buy(message) { //$buy waifu
         taken[message.author.id.toString()].happy += 2;
         taken[message.author.id.toString()].love += 2;
 
-        return resolvename(message)+" loves "+message.author.username+"'s flowers!";
+        return flowersText(message);
     case "energy drink":
         if (!u.deductcurrency(message.author.id.toString(), 50)) {
             return `${message.author.username} does not have enough ${u.currency()}`;
@@ -578,7 +784,7 @@ function buy(message) { //$buy waifu
         taken[message.author.id.toString()].fit += 2;
         taken[message.author.id.toString()].love += 0.5;
 
-        return resolvename(message)+" feels full of energy thanks to "+message.author.username+"'s gift!";
+        return drinkText(message);
     case "game":
         if (!u.deductcurrency(message.author.id.toString(), 100)) {
             return `${message.author.username} does not have enough ${u.currency()}`;
@@ -588,7 +794,7 @@ function buy(message) { //$buy waifu
         taken[message.author.id.toString()].love += 0.8;
         taken[message.author.id.toString()].fit -= 0.5;
 
-        return resolvename(message)+" will have fun with "+message.author.username+"'s game!";
+        return gameText(message);
     case "phone":
         if (!u.deductcurrency(message.author.id.toString(), 400)) {
             return `${message.author.username} does not have enough ${u.currency()}`;
@@ -600,7 +806,7 @@ function buy(message) { //$buy waifu
         taken[message.author.id.toString()].love += 3;
         taken[message.author.id.toString()].fit += 0.5;
 
-        return resolvename(message)+" can now stay in touch with "+message.author.username+"!";
+        return phoneText(message);
     default:
         return message.author.username+", the shop doesn't have that. Use '$shop waifu'.";
 
@@ -625,6 +831,7 @@ const show = async (message) => {
 
                 let n = obj.name;
                 let t = obj.trait;
+                let c = obj.cl;
                 let he = numtoscale(obj.health);
                 let ha = numtoscale(obj.happy);
                 let l = numtoscale(obj.love);
@@ -668,6 +875,7 @@ const show = async (message) => {
                     .setFooter(message.author.username+"'s waifu", message.author.avatarURL)
                     .setImage("attachment://image.png")
                     .addField("Name", n)
+                    .addField("Class", c)
                     .addField("Health ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Happy ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Smart ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Trait", he+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ "+ha+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­"+s+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­"+t)
                     .addField("Love ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Wealth ­ ­ ­ ­ ­ ­ ­ ­ ­ ­Fitness", l+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ "+w+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­  ­­"+f)
                     .addField("Status",status);      
@@ -705,6 +913,7 @@ function quickshow(message) {
 
         let n = obj.name;
         let t = obj.trait;
+        let c = obj.cl;
         let he = numtoscale(obj.health);
         let ha = numtoscale(obj.happy);
         let l = numtoscale(obj.love);
@@ -743,6 +952,7 @@ function quickshow(message) {
         .setColor('#FF0000')
         .setFooter(message.author.username+"'s waifu", message.author.avatarURL)
         .addField("Name", n)
+        .addField("Class", c)
         .addField("Health ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Happy ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Smart ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Trait", he+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ "+ha+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­"+s+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­"+t)
         .addField("Love ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Wealth ­ ­ ­ ­ ­ ­ ­ ­ ­ ­Fitness", l+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ "+w+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­  ­­"+f)
         .addField("Status",status);      
@@ -894,6 +1104,171 @@ function sleepingText(message) {
     return h.random(a);     
 }
 
+function jogText(message) {
+    const a = [
+        "The weather is clear and it's not too hot outside. You and "+resolvenamef(message)+" put on sports clothes and go exercise together.",
+        "You don't really feel like going outside, to be honest, but "+resolvenamef(message)+" is just too cute in her sports outfit. So, might as well join her, no?",
+        resolvenameF(message)+" grabs you by the arm and hands you a pair of sneakers. Looks like she wants go jogging.. shouldn't be a bad time if it's with "+resolvenamef(message)+".",
+        "You notice some good weather outside and decide that "+resolvenamef(message)+" could use some exercise. It'll be fun!"
+    ];
+
+    return h.random(a);    
+}
+
+function jogCooldownText(message) {
+    const a = [
+        resolvenameF(message)+" has her face buried in the sofa and doesn't look like she wants to move anytime soon. ",
+        resolvenameF(message)+" is busy showering after working up a sweat, let's give her some time before working out again.",
+        "You approach "+resolvenamef(message)+" to suggest more jogging, but you back out of it when you notice she's massaging her legs after the effort. Not right now.",
+        resolvenameF(message)+" crashed on on the sofa the second she got her sports shoes off. She's definitely not up for another round."
+    ];
+
+    return h.random(a);    
+}
+
+function bookText(message) {
+    const a = [
+        "As you pass by, you notice a book that appears to be about "+resolvenamef(message)+"'s lastest hobby and decide to pick it up. Judging by her smile, you did the right choice.",
+        "Wandering in a nearby bookshop with "+resolvenamef(message)+", she seems interested in a random book off a shelf. You grab it and buy it for her, getting a kiss as thanks.",
+        "Noticing "+resolvenamef(message)+"'s stacks of unread books is getting smaller, you go out and buy another one, discreetly dropping it on the pile while she's absent. She doesn't waste time and opens it right away as she finds it, delighted.",
+        "Finding a copy of one of your favorite books at the store, you decide to introduce "+resolvenamef(message)+" to your favorite series. Looks like it was a good choice."
+    ];
+
+    return h.random(a);    
+}
+
+function movieText(message) {
+    const a = [
+        "Looking for something to do with "+resolvenamef(message)+", you decide to rent a movie off Internet. After a complicated choice, you're ready to kill some time in an enjoyable way.",
+        "You bought popcorn, you bought snacks, and now you're just missing a movie. Letting "+resolvenamef(message)+" choose it, even if the movie is subpar you're sure to have a good time!",
+        "For a change, you decide to watch a cult classic with "+resolvenamef(message)+". You both end the afternoon now knowing why everybody likes that movie.",
+        "Looking for something to do, you pick up a movie none of you heard from. Turns out, it's some insanely stupid b-series. On the plus side, "+resolvenamef(message)+" laughed a lot as you riffed on it, so it wasn't too bad."
+    ];
+
+    return h.random(a); 
+}
+
+function dressText(message) {
+    const a = [
+        "Thinking "+resolvenamef(message)+"'s wardrobe needs to be refreshed a bit, you go and pick up a dress for her. You remembered her sizes right and it fits her great!",
+        "You decide to pick up a new style of dress for "+resolvenamef(message)+", hoping it will suit her. Maybe that's not what she'd have went for, but she's more than happy to have variety.",
+        "Walking along, you spy a cute dress you think will probably fit "+resolvenamef(message)+". And you're right, she looks stunning in it. You should do that more often.",
+        "The weather changed a bit and you think it might be time to adapt "+resolvenamef(message)+"'s wardrobe for the current temperature. Coming back with new clothes, she seems more comfortable now."
+    ];
+
+    return h.random(a); 
+}
+
+function jewelsText(message) {
+    const a = [
+        "Passing by a jeweler, you notice a cute little ring with a stone you think "+resolvenamef(message)+" will love. Once on her finger, it's obvious you did a correct choice.",
+        "You decide to pick up a necklace for "+resolvenamef(message)+", choosing one with a pretty gemstone hanging from it. It compliments her eyes really well.",
+        "A splendid bracelet is on sale, and it looks like a perfect gift for "+resolvenamef(message)+". Classy but not too showy, she looks wealthier just by having it.",
+        "You help "+resolvenamef(message)+" put on her new pair of earrings, being careful not to pinch her earlobes. The sheen from the plating makes her look positively beaming."
+    ];
+
+    return h.random(a); 
+}
+
+function veggiesText(message) {
+    const a = [
+        "Today on the menu is a vegetarian meal, a stir fry made of carrots, onions and soybean sprouts with sesame seeds and a copious amount of soy sauce, served with rice. "+resolvenameF(message)+" has nothing but compliments to say about that tasty dish.",
+        "Out of inspiration, you decide to cook some simple pasta with a lovingly heated up tomato sauce, given a better kick thanks to some herbs and spices. Seeing "+resolvenamef(message)+"'s face, she still appreciates simplicity.",
+        "You cooked some spinach and polenta for "+resolvenamef(message)+". Healty meals are always a good idea, and she's not one to disagree with that. Maybe you'll get ice cream or something for dessert..",
+        "To change things, you decide to do a salade with lettuce, shredded carrot, shredded beetroot, and a tahini sauce. "+resolvenameF(message)+" greatly appreciates that kind of refreshing meal."
+    ];
+
+    return h.random(a); 
+}
+
+function fishText(message) {
+    const a = [
+        resolvenameF(message)+" having a refined palate, you got her some sushi. Her face when she accidentally bites into a little too much wasabi is a sight to behold!",
+        "You plate up a hearty amount of white rice and a big fillet of tuna for "+resolvenamef(message)+". One more sprinkle of seasoning and it's devoured within minutes by "+resolvenamef(message)+".",
+        "The roles are reversed and this time "+resolvenamef(message)+" is the one cooking, making some tempura with the shirmp you bought earlier. It turns out fried perfectly and the sauce is just right too. "+resolvenameF(message)+" is a great cook, isn't she?",
+        "You cook a white fish fillet for "+resolvenamef(message)+", accompagned by a thick tomato sauce. She instantly starts digging in, scooping up as much sauce as she can with each bite."
+    ];
+
+    return h.random(a); 
+}
+
+function meatText(message) {
+    const a = [
+        "You slide a nice, juicy chicken breast out of the cast-iron pan and into "+resolvenamef(message)+"'s plate. She doesn't even wait for the rest of the dish to grab a bite.",
+        "Satisfied with your sirloin steak, you plate it up with some aspargus and serve it to "+resolvenamef(message)+". She's ecstatic about it.",
+        "You picked up ground meat to make hamburgers, but in an attempt to be classy you present them to "+resolvenamef(message)+" as \"steamed hams\" from Utica.",
+        "Taking inspiration from one of your japanese anime, you decide to deep-fry some pork cutlets to make tonkatsu. You made a mess of the kitchen while frying, but "+resolvenamef(message)+" thinks it's tasty nonetheless."
+    ];
+
+    return h.random(a); 
+}
+
+function chocolateText(message) {
+    const a = [
+        "You hand a tablet of fine, dark chocolate to "+resolvenamef(message)+", which she savours every square of, even feeding you one of them.",
+        resolvenameF(message)+" shows up with a bag of chocolate candies to share with you. You end up both taking turns picking one in the bag, quickly emptying it.",
+        "You share a tablet of white chocolate with "+resolvenamef(message)+". So greasy, so sugary, but so soft and sweet. Quite the guilty pleasure.",
+        "What's in the box? A random assortment of chocolates, and neither of you know what you're getting with, leading to "+resolvenamef(message)+" and you trying to guess what each of them are before noticing explanations on the bottom of the box."
+    ];
+
+    return h.random(a); 
+}
+
+function flowersText(message) {
+    const a = [
+        "You got "+resolvenamef(message)+" a nice, big, varied bouquet of flowers, with a combination of wildly different smells. "+resolvenameF(message)+" is a little overwhelmed by the size, they quickly get into a vase.",
+        "You choose a single, beautiful rose to bring home to "+resolvenamef(message)+". It looks gorgeous in her hair.",
+        resolvenameF(message)+" hands you a bouquet of pretty, small violet flowers she apparently delicately plucked herself. The scent is overpowering!",
+        resolvenameF(message)+" carefully grasps the pot containing a delicate orchid from your hands, sniffing it with a smile on her face, before looking up how to care for it."
+    ];
+
+    return h.random(a); 
+}
+
+function drinkText(message) {
+    const a = [
+        resolvenameF(message)+" takes a large sip from a weird fluorescent, colored energy drink. She looks all pumped up now.",
+        "A glass of that ginger-based energy drink later, and "+resolvenamef(message)+" is ready for anything!",
+        resolvenameF(message)+" cracks open a can of some generic energy drink, frowning at the smell, but downs it in an instant before hiccuping.",
+        resolvenameF(message)+" slowly sips up a caffeine-based drink, getting herself ready for the rest of the day."
+    ];
+
+    return h.random(a);
+}
+
+function gameText(message) {
+    const a = [
+        "You hand "+resolvenamef(message)+" an RPG, wondering how long it'll take her to go through the main story.. and if she'll stop at the final boss or go out of her way to do the sidequests.",
+        resolvenameF(message)+" readies herself for another FPS to run and gun through. Her aim at those games is steadily getting better and she's starting to be pretty good in multiplayer.",
+        "You wanted to show "+resolvenamef(message)+" that new puzzle game she could defy you at, but she's still hooked to the last one. You leave it on the pile for later.",
+        resolvenameF(message)+" sits down on the sofa with you to play a racing game, knocking your own car asides several times before pouting as you throw a blue shell at her."
+    ];
+
+    return h.random(a);
+}
+
+function phoneText(message) {
+    const a = [
+        "You got "+resolvenamef(message)+" the new model of smart phone in store. She immediately makes use of it by phoning you while you are in the same room.",
+        "As you show "+resolvenamef(message)+" the new phone you got her, she accidentally sends you a text full of gibberish while getting used to it.",
+        resolvenameF(message)+" wastes no time, taking a selfie with you right after you hand her a new phone, setting it as her background picture. She's really cute on it.",
+        "A few minutes after you gave "+resolvenamef(message)+" her new phone, she's still struggling with it. The phone starts working better when you peel off the sticker on the screen, and "+resolvenamef(message)+" hides her face out of embarassment."
+    ];
+
+    return h.random(a);
+}
+
+function notHungryText(message) {
+    const a = [
+        "You ask "+resolvenamef(message)+" if she wants more food, but she shakes her head.",
+        "Looking at "+resolvenamef(message)+", it looks like she's full. She's not gonna eat for a moment.",
+        "You attempt to give "+resolvenamef(message)+" a second serving of food, but she's not even done with the first one.",
+        resolvenameF(message)+" is stuffed! She can't really eat more for the time being."
+    ];
+
+    return h.random(a);
+}
+
 function save() {
     fs.writeFileSync('scripts/waifus/data.txt', JSON.stringify(taken));
 }
@@ -937,6 +1312,7 @@ module.exports = {
     name,
     buy,
     cuddle,
+    classes,
     sleep,
     jog,
     update,

@@ -85,7 +85,7 @@ function top(message) {
         let index = 1;
 
         for (let i=0;i<array.length;i++) {
-            if (i===10) break;
+            if (index===10) break;
             let member = message.guild.members.find("id", array[i].id.toString())
             if (member!=null) {
                 let name = member.user.username;

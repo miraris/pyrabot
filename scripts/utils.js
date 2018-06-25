@@ -3,12 +3,13 @@ const u = require('./currency');
 const s = require('./sentences');
 const w = require('./waifus');
 const h = require('./helpers');
+const r = require('./roles');
 const loaded = new Date().getTime();
 
 console.log("Utils: loading.");
 
 const scan = (message) => {
-    return h.fromOwner(message) ? "Not implemented yet" : `You're not ${process.env.OWNER}.`;
+    return "hi";
 };
 
 const servers = (message) => {
@@ -33,6 +34,7 @@ const globalsave = (message) => {
         s.save();
         w.save();
         u.save();
+        r.save();
         return "Done!";
     }
     return `You're not ${process.env.OWNER}.`;
@@ -58,6 +60,7 @@ const help = () => {
         .setTitle("Here's what I can do for now:")
         .addField("$talk / $words","Related to responses based on what I've learned from others.")
         .addField("$waifu help","Use this to learn more about waifus.")
+        .addField("$add role / $role / $remove role","Tell me which roles I can assign to users. Users can then get them from me.")
         .addField("$money / $gamble / $gift / $top","Money related stuff. You earn it from chatting. Spamming won't help!")
         .addField("$time","How long I've been up for.");
 

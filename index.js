@@ -12,6 +12,7 @@ const u = require('./scripts/utils.js');
 const w = require('./scripts/waifus.js');
 const c = require('./scripts/currency.js');
 const g = require('./scripts/gambler.js');
+const r = require('./scripts/roles.js');
 
 const bot = new discord.Client();
 
@@ -35,6 +36,10 @@ bot.on('message', (message) => {
     //cmds with args
     if (cmd.startsWith(p+"gamble")) g.gamble(message).then(res => message.channel.send(res)).catch(err => console.error(err));
     else if (cmd.startsWith(p+"name waifu")) message.channel.send(w.name(message));
+    else if (cmd.startsWith(p+"add role")) message.channel.send(r.addRole(message));
+    else if (cmd.startsWith(p+"remove role")) message.channel.send(r.removeRole(message));
+    else if (cmd.startsWith(p+"role")) message.channel.send(r.attrRole(message));
+    else if (cmd.startsWith(p+"class waifu")) message.channel.send(w.classes(message));
     else if (cmd.startsWith(p+"buy waifu")) message.channel.send(w.buy(message));
     else if (cmd.startsWith(p+"trait waifu")) message.channel.send(w.trait(message));
     else if (cmd.startsWith(p+"gift")) message.channel.send(c.gift(message));
@@ -99,6 +104,9 @@ bot.on('message', (message) => {
                 break;
             case p+"money":
                 message.channel.send(c.mycurrency(message));
+                break;
+            case p+"list roles":
+                message.channel.send(r.listRoles(message));
                 break;
             case p+"top":
                 message.channel.send(c.top(message));
