@@ -4,12 +4,13 @@ const s = require('./sentences');
 const w = require('./waifus');
 const h = require('./helpers');
 const r = require('./roles');
+const p = process.env.COMMAND;
 const loaded = new Date().getTime();
 
 console.log("Utils: loading.");
 
 const scan = (message) => {
-    return "hi";
+    return "Hi";
 };
 
 const servers = (message) => {
@@ -55,14 +56,14 @@ const myeval = (message) => {
 
 const help = () => {
     const embed = new discord.RichEmbed()
-        .setAuthor("~~ You used the $help command ~~", "https://cdn.discordapp.com/avatars/456934877841981462/5a880bec4e424aab34fcf6f62cc8a363.png?size=128")
+        .setAuthor("~~ You used the "+p+"help command ~~", "https://cdn.discordapp.com/avatars/456934877841981462/5a880bec4e424aab34fcf6f62cc8a363.png?size=128")
         .setColor("#FF0000")
         .setTitle("Here's what I can do for now:")
-        .addField("$talk / $words","Related to responses based on what I've learned from others.")
-        .addField("$waifu help","Use this to learn more about waifus.")
-        .addField("$add role / $role / $remove role","Tell me which roles I can assign to users. Users can then get them from me.")
-        .addField("$money / $gamble / $gift / $top","Money related stuff. You earn it from chatting. Spamming won't help!")
-        .addField("$time","How long I've been up for.");
+        .addField(p+"talk / "+p+"words","Related to responses based on what I've learned from others.")
+        .addField(p+"waifu help","Use this to learn more about waifus.")
+        .addField(p+"add role / "+p+"role / "+p+"remove role","Tell me which roles I can assign to users. Users can then get them from me.")
+        .addField(p+"money / "+p+"gamble / "+p+"gift / "+p+"top","Money related stuff. You earn it from chatting. Spamming won't help!")
+        .addField(p+"time","How long I've been up for.");
 
     return { embed };
 };

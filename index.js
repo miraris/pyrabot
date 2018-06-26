@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-const p = '$';
+const p = process.env.COMMAND;
 const botid = process.env.BOT_ID;
 const botperms = process.env.BOT_PERMS;
 const bottoken = process.env.BOT_TOKEN;
@@ -12,6 +12,7 @@ const u = require('./scripts/utils.js');
 const w = require('./scripts/waifus.js');
 const c = require('./scripts/currency.js');
 const g = require('./scripts/gambler.js');
+const wg = require('./scripts/waifugame.js');
 const r = require('./scripts/roles.js');
 
 const bot = new discord.Client();
@@ -44,6 +45,7 @@ bot.on('message', (message) => {
     else if (cmd.startsWith(p+"trait waifu")) message.channel.send(w.trait(message));
     else if (cmd.startsWith(p+"gift")) message.channel.send(c.gift(message));
     else if (cmd.startsWith(p+"secret-eval")) message.channel.send(u.myeval(message));
+    else if (cmd.startsWith(p+"do")) message.channel.send(wg.go(message));
 
     //cmds without args
     else {
@@ -56,6 +58,9 @@ bot.on('message', (message) => {
                 break;
             case p+"words":
                 message.channel.send(s.wordcount());
+                break;
+            case p+"waifu game":
+                message.channel.send(wg.main(message));
                 break;
             case p+"time":
                 message.channel.send(u.botup());

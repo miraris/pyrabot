@@ -63,12 +63,28 @@ const capitalize = (str) => {
  *
  * @param {Array} arr 
  */
-const random = (arr) => arr[Math.floor(Math.random() * ((arr.length-1)))];
+const random = (arr) => arr[randomInt(0,arr.length-1)];
 
 module.exports = {
     fromOwner,
     prettyNumber,
     timeDiffToString,
     capitalize,
+    randomInt,
+    arrayDiff,
     random
 };
+
+/**
+ * Returns a random integer between min (inclusive) and max (inclusive)
+ */
+function randomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+/**
+ * Returns an array that only contains items arr1 has and arr2 doesn't
+ */
+function arrayDiff(arr1, arr2) {
+    return arr1.filter(x => !arr2.includes(x));
+}

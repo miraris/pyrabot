@@ -4,6 +4,7 @@ const discord = require("discord.js");
 const fs = require("fs");
 const u = require("./currency");
 const h = require("./helpers");
+const p = process.env.COMMAND;
 const common = process.env.COMMON_URL;
 const url = common+process.env.URL1;
 const url2 = common+process.env.URL2;
@@ -78,27 +79,31 @@ function buyembed() {
         .addField("flowers","45 "+u.currency(), true)
         .addField("energy drink","50 "+u.currency(), true)
         .addField("game","100 "+u.currency(), true)
-        .addField("phone","400 "+u.currency(), true);
+        .addField("phone","400 "+u.currency(), true)
+        .addField("crown","100 "+u.currency(), true)
+        .addField("sketch pad","200 "+u.currency(), true)
+        .addField("plush","50 "+u.currency(), true)
 
     return {embed};
 }
 
 function help() {
     const embed = new discord.RichEmbed()
-        .setAuthor("~~ You used the $waifu help command ~~", "https://cdn.discordapp.com/avatars/456934877841981462/5a880bec4e424aab34fcf6f62cc8a363.png?size=128")
+        .setAuthor("~~ You used the "+p+"waifu help command ~~", "https://cdn.discordapp.com/avatars/456934877841981462/5a880bec4e424aab34fcf6f62cc8a363.png?size=128")
         .setColor("#FF0000")
         .setTitle("Here's how it all works:")
-        .addField("$waifu","Claim a random waifu for 5"+u.currency()+". Rerolling will make you lose all your progress!")
-        .addField("$show waifu / $quick show waifu","Shows your waifu and her stats.")
-        .addField("$name waifu","Give your waifu a name!")
-        .addField("$class waifu","Assign your waifu a class! Requires a minimum of 18 ★.")
-        .addField("$sleep with waifu / $sleep waifu","Sleep with your waifu for 2h. Can't do other activities while asleep!")
-        .addField("$jog with waifu / $jog waifu","Do some exercise with your waifu. 1h cooldown!")
-        .addField("$pet waifu / $hug waifu / $kiss waifu","Show your waifu some love. 15 min cooldown!")
-        .addField("$buy waifu","Buy items for your waifu. Feeding your waifu has a 1h cooldown!")
-        .addField("$trait waifu","Pick a trait for your waifu. Traits affect stat changes.")
-        .addField("$shop waifu","Check what you can buy for your waifu.")
-        .addField("$top waifus","Waifu leaderboard!");
+        .addField(p+"waifu","Claim a random waifu for 5"+u.currency()+". Rerolling will make you lose all your progress!")
+        .addField(p+"show waifu / "+p+"quick show waifu","Shows your waifu and her stats.")
+        .addField(p+"name waifu","Give your waifu a name!")
+        .addField(p+"waifu game / "+p+"do","Play a game with your waifu!")
+        .addField(p+"class waifu","Assign your waifu a class! Requires a minimum of 18 ★.")
+        .addField(p+"sleep with waifu / "+p+"sleep waifu","Sleep with your waifu for 2h. Can't do other activities while asleep!")
+        .addField(p+"jog with waifu / "+p+"jog waifu","Do some exercise with your waifu. 1h cooldown!")
+        .addField(p+"pet waifu / "+p+"hug waifu / "+p+"kiss waifu","Show your waifu some love. 15 min cooldown!")
+        .addField(p+"buy waifu","Buy items for your waifu. Feeding your waifu has a 1h cooldown!")
+        .addField(p+"trait waifu","Pick a trait for your waifu. Traits affect stat changes.")
+        .addField(p+"shop waifu","Check what you can buy for your waifu.")
+        .addField(p+"top waifus","Waifu leaderboard!");
 
     return {embed};
 }
@@ -207,12 +212,12 @@ function update(message) {
 
 function name(message) { //$name waifu
     if (!taken[message.author.id.toString()])
-        return message.author.username+" has not claimed a waifu yet. Use '$waifu'.";
+        return message.author.username+" has not claimed a waifu yet. Use '"+p+"waifu'.";
 
-    if (!message.content.includes("$name waifu "))
-        return message.author.username+", usage is '$name waifu Name'.";
+    if (!message.content.includes(p+"name waifu "))
+        return message.author.username+", usage is '"+p+"name waifu Name'.";
 
-    let text = message.content.replace("$name waifu ","");
+    let text = message.content.replace(p+"name waifu ","");
 
     if (text === "-") 
         return message.author.username+", you can't name your waifu that!";
@@ -295,6 +300,23 @@ function applytrait(id) {
         taken[id].fit += 0.2;
         taken[id].smart += 0.2;
         taken[id].love -= 0.2;
+        break; 
+    case "Vengeful":
+        taken[id].happy -= 0.2;
+        taken[id].love -= 0.2;
+        taken[id].health -= 0.1;
+        taken[id].wealth += 0.5;
+        taken[id].smart += 0.4;
+        break;  
+    case "Volatile":
+        taken[id].fit += 0.4;
+        taken[id].love -= 0.1;
+        taken[id].health -= 0.1;
+        break;  
+    case "Determined":
+        taken[id].fit += 0.2;
+        taken[id].love += 0.2;
+        taken[id].health -= 0.2;
         break;  
     }
 
@@ -359,7 +381,7 @@ function getClassChoices(id) {
 
     if (o.health>=100 && o.wealth>=100 && o.love>=100 && o.happy>=100 && o.smart>=80 && o.fit>=80
         && (o.trait=="Calm" || o.trait=="Loyal" || o.trait=="Playful" || o.trait=="Charming"
-            || o.trait=="Determinated"))
+            || o.trait=="Determined"))
         res.push("Goddess");
     
     if (o.health>=100 && o.wealth>=100 && o.love>=100 && o.happy>=100 && o.smart>=80 && o.fit>=80
@@ -372,7 +394,7 @@ function getClassChoices(id) {
 			|| o.trait=="Charming" || o.trait=="None" || o.trait=="Volatile"))
         res.push("Myth");
 
-    if (o.fit>=40 && o.love>=80 && o.trait!="Evil" && o.trait!="Serious" && o.trait!="Vengeful")
+    if (o.fit>=40 && o.love>=80 && (o.trait=="Calm" || o.trait=="Valiant" || o.trait=="Charming"))
         res.push("Angel");
 
     if (o.fit>=40 && o.love>=80 && (o.trait=="Evil" || o.trait=="Serious" || o.trait=="Vengeful"))
@@ -397,7 +419,7 @@ function getClassChoices(id) {
 
     if (o.love>=90 && o.happy>=90 && 
         (o.trait=="Loyal" || o.trait=="Curious" || o.trait=="Valiant" || o.trait=="None"
-            || o.trait=="Determinated"))
+            || o.trait=="Determined"))
         res.push("Magical Girl");
     
     if (o.love>=90 && o.smart>=60 && 
@@ -407,7 +429,7 @@ function getClassChoices(id) {
 
     if (o.wealth>=90 && o.smart>=40 && 
         (o.trait=="Curious" || o.trait=="Serious" || o.trait=="Wild" || o.trait=="None"
-            || o.trait=="Determinated"))
+            || o.trait=="Determined"))
         res.push("Scientist");    
 
     if (o.wealth>=80 && o.smart>=30 && o.fit>=30 &&
@@ -420,14 +442,14 @@ function getClassChoices(id) {
 
     if (o.happy>=100 &&
         (o.trait=="Loyal" || o.trait=="Wild" || o.trait=="Playful" || o.trait=="None" 
-            || o.trait=="Determinated"))
+            || o.trait=="Determined"))
         res.push("Cheerleader"); 
 
     if (o.health>=85 && o.fit>=40)
         res.push("Warrior");
     
     if (o.health>=90 && o.fit>=45 &&
-        (o.trait=="Valiant" || o.trait=="Wild" || o.trait=="Loyal" || o.trait=="Determinated"))
+        (o.trait=="Valiant" || o.trait=="Wild" || o.trait=="Loyal" || o.trait=="Determined"))
         res.push("Knight");
         
     if (o.fit>=80)
@@ -452,7 +474,7 @@ function getClassChoices(id) {
         res.push("Alchemist"); 
 
     if (o.fit>=45 && o.health>=90 &&
-        (o.trait=="Serious" || o.trait=="Leader" || o.trait=="Determinated"))
+        (o.trait=="Serious" || o.trait=="Leader" || o.trait=="Determined"))
         res.push("Commander"); 
 
     if (o.health>=90 && o.fit>=45 &&
@@ -499,7 +521,7 @@ function classesembed(options, message) {
 function classes(message) {
     const uid = message.author.id.toString();
 
-    if (!taken[uid]) return `${message.author.username} has not claimed a waifu yet. Use '$waifu'.`;
+    if (!taken[uid]) return `${message.author.username} has not claimed a waifu yet. Use '"+p+"waifu'.`;
 
     let options = getClassChoices(uid);
 
@@ -512,9 +534,9 @@ function classes(message) {
 
     if (total<18) return message.author.username+", "+resolvenamef(message)+" requires at least 18 ★ to be assigned a class (currently at "+total+" ★).";
 
-    if (!message.content.includes("$class waifu ")) return classesembed(options, message);
+    if (!message.content.includes(p+"class waifu ")) return classesembed(options, message);
 
-    const text = message.content.replace("$class waifu ", "").toLowerCase();
+    const text = message.content.replace(p+"class waifu ", "").toLowerCase();
     
     for (let x=0;x<options.length;x++) {
         if (options[x].toLowerCase()===text) {
@@ -557,14 +579,14 @@ function traitsembed(traits) {
  * @returns {string}
  */
 function trait(message) {
-    if (!taken[message.author.id.toString()]) return `${message.author.username} has not claimed a waifu yet. Use '$waifu'.`;
+    if (!taken[message.author.id.toString()]) return `${message.author.username} has not claimed a waifu yet. Use '"+p+"waifu'.`;
 
     const traits = ["calm", "loyal", "curious", "valiant", "serious", "leader", "wild", "playful", 
-            "careful", "evil", "doting", "charming", "volatile", "vengeful", "determinated", "none"];
+            "careful", "evil", "doting", "charming", "volatile", "vengeful", "determined", "none"];
 
-    if (!message.content.includes("$trait waifu ")) return traitsembed(traits);
+    if (!message.content.includes(p+"trait waifu ")) return traitsembed(traits);
 
-    const text = message.content.replace("$trait waifu ", "").toLowerCase();
+    const text = message.content.replace(p+"trait waifu ", "").toLowerCase();
 
     if (traits.includes(text)) {
         taken[message.author.id.toString()].trait = h.capitalize(text);
@@ -581,7 +603,7 @@ function trait(message) {
 
 function jog(message) { //$jog with waifu
     if (!taken[message.author.id.toString()])
-        return message.author.username+" has not claimed a waifu yet. Use '$waifu'.";
+        return message.author.username+" has not claimed a waifu yet. Use '"+p+"waifu'.";
 
     let now = new Date().getTime();
 
@@ -605,7 +627,7 @@ function jog(message) { //$jog with waifu
 
 function sleep(message) { //$sleep with waifu
     if (!taken[message.author.id.toString()])
-        return message.author.username+" has not claimed a waifu yet. Use '$waifu'.";
+        return message.author.username+" has not claimed a waifu yet. Use '"+p+"waifu'.";
 
     let now = new Date().getTime();
 
@@ -623,7 +645,7 @@ function sleep(message) { //$sleep with waifu
 
 function cuddle(message) { //pet hug kiss
     if (!taken[message.author.id.toString()])
-        return message.author.username+" has not claimed a waifu yet. Use '$waifu'.";
+        return message.author.username+" has not claimed a waifu yet. Use '"+p+"waifu'.";
 
     let now = new Date().getTime();
 
@@ -638,17 +660,17 @@ function cuddle(message) { //pet hug kiss
     }
 
     switch (message.content) {
-    case "$pet waifu":
+    case p+"pet waifu":
         taken[message.author.id.toString()].happy += 1;
         taken[message.author.id.toString()].love += 0.2;
         taken[message.author.id.toString()].lastcuddled = now;
         return petText(message);
-    case "$hug waifu":
+    case p+"hug waifu":
         taken[message.author.id.toString()].happy += 1.5;
         taken[message.author.id.toString()].love += 0.3;
         taken[message.author.id.toString()].lastcuddled = now;
         return hugText(message);
-    case "$kiss waifu":
+    case p+"kiss waifu":
         taken[message.author.id.toString()].happy += 2;
         taken[message.author.id.toString()].love += 0.4;
         taken[message.author.id.toString()].lastcuddled = now;
@@ -658,7 +680,7 @@ function cuddle(message) { //pet hug kiss
 
 function buy(message) { //$buy waifu
     if (!taken[message.author.id.toString()])
-        return message.author.username+" has not claimed a waifu yet. Use '$waifu'.";
+        return message.author.username+" has not claimed a waifu yet. Use '"+p+"waifu'.";
 
     const now = new Date().getTime();
 	
@@ -667,10 +689,10 @@ function buy(message) { //$buy waifu
         return sleepingText(message)+" (wait " +h.timeDiffToString(end,now)+")";
     }
 
-    if (!message.content.includes("$buy waifu "))
-        return message.author.username+", usage is '$buy waifu item'. Use '$shop waifu' to see all the options.";
+    if (!message.content.includes(p+"buy waifu "))
+        return message.author.username+", usage is '"+p+"buy waifu item'. Use '"+p+"shop waifu' to see all the options.";
         
-    let text = message.content.replace("$buy waifu ","");
+    let text = message.content.replace(p+"buy waifu ","");
 
     switch (text) {
     case "book":
@@ -807,8 +829,38 @@ function buy(message) { //$buy waifu
         taken[message.author.id.toString()].fit += 0.5;
 
         return phoneText(message);
+    case "crown":
+        if (!u.deductcurrency(message.author.id.toString(), 100)) {
+            return `${message.author.username} does not have enough ${u.currency()}`;
+        }
+
+        taken[message.author.id.toString()].happy += 3.5;
+        taken[message.author.id.toString()].wealth += 4;
+        taken[message.author.id.toString()].love += 1.5;
+
+        return resolvenameF(message)+" feels like a queen wearing "+message.author.username+"'s gift!";
+    case "sketch pad":
+        if (!u.deductcurrency(message.author.id.toString(), 200)) {
+            return `${message.author.username} does not have enough ${u.currency()}`;
+        }
+
+        taken[message.author.id.toString()].happy += 1;
+        taken[message.author.id.toString()].wealth += 2;
+        taken[message.author.id.toString()].love += 0.5;
+        taken[message.author.id.toString()].smart += 3;
+
+        return resolvenameF(message)+"'s creativity comes to life as she happily draws away on her sketch pad.";
+    case "plush":
+        if (!u.deductcurrency(message.author.id.toString(), 50)) {
+            return `${message.author.username} does not have enough ${u.currency()}`;
+        }
+
+        taken[message.author.id.toString()].happy += 2.5;
+        taken[message.author.id.toString()].love += 1;
+
+        return resolvenameF(message)+" loves the fluffy doll "+message.author.username+" bought for her. She hugs it warmly.";  
     default:
-        return message.author.username+", the shop doesn't have that. Use '$shop waifu'.";
+        return message.author.username+", the shop doesn't have that. Use '"+p+"shop waifu'.";
 
     }
     
@@ -818,10 +870,10 @@ const show = async (message) => {
     let uid = message.author.id.toString();
 
     if (!message.channel.nsfw) {
-        message.channel.send("Please only use '$show waifu' in nsfw rooms!");
+        message.channel.send("Please only use '"+p+"show waifu' in nsfw rooms!");
     }
     else if (!taken[uid])
-        message.channel.send(message.author.username+" has not claimed a waifu yet. Use '$waifu'.");
+        message.channel.send(message.author.username+" has not claimed a waifu yet. Use '"+p+"waifu'.");
     else {
 
         let obj = taken[uid];
@@ -832,6 +884,7 @@ const show = async (message) => {
                 let n = obj.name;
                 let t = obj.trait;
                 let c = obj.cl;
+                let lvl = "Lv. "+level(uid);
                 let he = numtoscale(obj.health);
                 let ha = numtoscale(obj.happy);
                 let l = numtoscale(obj.love);
@@ -877,7 +930,7 @@ const show = async (message) => {
                     .addField("Name", n)
                     .addField("Class", c)
                     .addField("Health ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Happy ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Smart ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Trait", he+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ "+ha+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­"+s+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­"+t)
-                    .addField("Love ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Wealth ­ ­ ­ ­ ­ ­ ­ ­ ­ ­Fitness", l+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ "+w+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­  ­­"+f)
+                    .addField("Love ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Wealth ­ ­ ­ ­ ­ ­ ­ ­ ­ ­Fitness ­ ­ ­ ­ ­ ­ ­ ­ ­ ­Skill", l+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ "+w+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­  ­­"+f+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­  ­­"+lvl)
                     .addField("Status",status);      
 
                 let link;
@@ -906,7 +959,7 @@ function quickshow(message) {
     let uid = message.author.id.toString();
 
     if (!taken[uid])
-        message.channel.send(message.author.username+" has not claimed a waifu yet. Use '$waifu'.");
+        message.channel.send(message.author.username+" has not claimed a waifu yet. Use '"+p+"waifu'.");
     else {
 
         let obj = taken[uid];
@@ -914,6 +967,7 @@ function quickshow(message) {
         let n = obj.name;
         let t = obj.trait;
         let c = obj.cl;
+        let lvl = "Lv. "+level(uid);
         let he = numtoscale(obj.health);
         let ha = numtoscale(obj.happy);
         let l = numtoscale(obj.love);
@@ -954,7 +1008,7 @@ function quickshow(message) {
         .addField("Name", n)
         .addField("Class", c)
         .addField("Health ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Happy ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Smart ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Trait", he+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ "+ha+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­"+s+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­"+t)
-        .addField("Love ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Wealth ­ ­ ­ ­ ­ ­ ­ ­ ­ ­Fitness", l+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ "+w+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­  ­­"+f)
+        .addField("Love ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ Wealth ­ ­ ­ ­ ­ ­ ­ ­ ­ ­Fitness ­ ­ ­ ­ ­ ­ ­ ­ ­ ­Skill", l+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ "+w+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­  ­­"+f+" ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­ ­  ­­"+lvl)
         .addField("Status",status);      
 
         message.channel.send({embed});
@@ -965,7 +1019,7 @@ function waifu(message) {
     let uid = message.author.id.toString();
 
     if (!message.channel.nsfw) {
-        return "Please only use '$waifu' in nsfw rooms!";
+        return "Please only use '"+p+"waifu' in nsfw rooms!";
     } else if (!u.deductcurrency(uid, 5)) {
         return message.author.username+" does not have enough "+u.currency()+" to roll a new waifu!";
     } else {
@@ -980,7 +1034,7 @@ function waifu(message) {
             
             if (total>280 || taken[uid].name !== "-") {
                 u.addcurrency(uid, 5);
-                return message.author.username+", are you sure? You'll lose all your progress. Type '$reroll waifu' if that is your choice.";
+                return message.author.username+", are you sure? You'll lose all your progress. Type '"+p+"reroll waifu' if that is your choice.";
             }
         }
 
@@ -1011,7 +1065,7 @@ function rerollwaifu(message) {
     let uid = message.author.id.toString();
 
     if (!message.channel.nsfw) {
-        return "Please only use '$reroll waifu' in nsfw rooms!";
+        return "Please only use '"+p+"reroll waifu' in nsfw rooms!";
     } else if (!u.deductcurrency(uid, 5)) {
         return message.author.username+" does not have enough "+u.currency()+" to roll a new waifu!";
     } else {
@@ -1292,7 +1346,9 @@ function load() {
 }
 
 function newwaifu(folder,pic) {
-    return {folder: folder, pic: pic, name: "-", health: 60, love: 60, happy: 60, wealth: 60, smart: 20, fit: 20, lastsleep: 1, lastcuddled: 1, lastfed: 1, lastjogged: 1, trait: "None", lasttraitchange: 1};
+    return {folder: folder, pic: pic, name: "-", health: 60, love: 60, happy: 60, wealth: 60, 
+    smart: 20, fit: 20, lastsleep: 1, lastcuddled: 1, lastfed: 1, lastjogged: 1, trait: "None", 
+    lasttraitchange: 1, cl: "-", ingame: 0, gamestart: 1, gamestatus: {}, xp: 0};
 }
 
 function pictaken(file) {
@@ -1301,6 +1357,16 @@ function pictaken(file) {
         if (taken[array[i]] == file) return true;
     }
     return false;
+}
+
+function level(uid) {
+    let lvl = 1;
+    let total = 34;
+    while (taken[uid].xp>=total) {
+        total += 30*lvl+Math.pow(lvl+1,2);
+        lvl++;
+    }
+    return lvl;
 }
 
 module.exports = {
@@ -1319,6 +1385,10 @@ module.exports = {
     help,
     shop: buyembed,
     trait,
+    resolvename,
+    resolvenameF,
+    resolvenamef,
     top,
+    taken,
     numtoscale
 };
