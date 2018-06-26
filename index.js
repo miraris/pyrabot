@@ -1,34 +1,34 @@
-require('dotenv').config();
+require("dotenv").config();
 
 const p = process.env.COMMAND;
 const botid = process.env.BOT_ID;
 const botperms = process.env.BOT_PERMS;
 const bottoken = process.env.BOT_TOKEN;
 
-console.log('Loading modules...');
-const discord = require('discord.js');
-const s = require('./scripts/sentences.js');
-const u = require('./scripts/utils.js');
-const w = require('./scripts/waifus.js');
-const c = require('./scripts/currency.js');
-const g = require('./scripts/gambler.js');
-const wg = require('./scripts/waifugame.js');
-const r = require('./scripts/roles.js');
+console.log("Loading modules...");
+const discord = require("discord.js");
+const s = require("./scripts/sentences.js");
+const u = require("./scripts/utils.js");
+const w = require("./scripts/waifus.js");
+const c = require("./scripts/currency.js");
+const g = require("./scripts/gambler.js");
+const wg = require("./scripts/waifugame.js");
+const r = require("./scripts/roles.js");
 
 const bot = new discord.Client();
 
 bot.login(bottoken);
 
-bot.on('ready', () => {
-  bot.user.setPresence({game: {name: "Miss Cinnamon Roll"}, status: "dnd"});
-  console.log('Bot is up.');
-})
+bot.on("ready", () => {
+    bot.user.setPresence({game: {name: "Miss Cinnamon Roll"}, status: "dnd"});
+    console.log("Bot is up.");
+});
 
-bot.on('message', (message) => {
+bot.on("message", (message) => {
 
     if (message.author.id.toString() === botid) return;
 
-    let cmd = message.content.toLowerCase();
+    const cmd = message.content.toLowerCase();
 
     s.learn(cmd);
     c.gencurrency(message);

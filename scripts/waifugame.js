@@ -1,11 +1,10 @@
-var exports = module.exports = {};
-
 const discord = require("discord.js");
 const fs = require("fs");
 const c = require("./currency");
 const h = require("./helpers");
 const w = require("./waifus");
 const p = process.env.COMMAND;
+const texts = require("./texts");
 
 const ping = 4000;
 const sleepduration = 2*60*60*1000;
@@ -31,18 +30,18 @@ function main(message) {
     if (sleepres.asleep==true) return sleepres.message;
 
     if (w.taken[uid].cl === "-")
-        return message.author.username+" must assign "+w.resolvename(message)+" a class before playing.";
+        return message.author.username+" must assign "+w.resolveName(message)+" a class before playing.";
 
     if (w.taken[uid].ingame!=0) {
         w.taken[uid].ingame=0;
-        return "But "+w.resolvename(message)+" was ingame! "+message.author.username+
+        return "But "+w.resolveName(message)+" was ingame! "+message.author.username+
             " forfeits the match.\n\n"+lose(message);
     }
 
     const embed = new discord.RichEmbed()
-        .setAuthor("~~ "+w.resolvename(message)+"'s Quest ~~", "https://cdn.discordapp.com/avatars/456934877841981462/5a880bec4e424aab34fcf6f62cc8a363.png?size=128")
+        .setAuthor("~~ "+w.resolveName(message)+"'s Quest ~~", "https://cdn.discordapp.com/avatars/456934877841981462/5a880bec4e424aab34fcf6f62cc8a363.png?size=128")
         .setColor("#FF0000")
-        .addField("­",locationText(message));
+        .addField("­",texts.location(w.resolveNameDirect(message)));
 
     const minigame = h.randomInt(2,3); 
 
@@ -77,7 +76,7 @@ function win(message) {
     let xpcalcs = xpToLevel(uid);
 
     return message.author.username+" won "+moneygain+" "+c.currency()+" and "+
-        w.resolvename(message)+" gained "+xpgain+" xp! ("+xpcalcs.tonext+" xp to **Level "+(xpcalcs.level+1)+"**)";
+        w.resolveName(message)+" gained "+xpgain+" xp! ("+xpcalcs.tonext+" xp to **Level "+(xpcalcs.level+1)+"**)";
 }
 
 function lose(message) {
@@ -111,7 +110,7 @@ function go(message) {
 
     switch(minigame) {
         case 0:
-            return w.resolvename(message)+" is not ingame. Start a game with '"+p+"waifu game'.";
+            return w.resolveName(message)+" is not ingame. Start a game with '"+p+"waifu game'.";
         case 1: break;
         case 2:
             return playEvent2(message);
@@ -127,7 +126,7 @@ function playEvent2(message) {
     const act = message.content.replace(p+"do ", "").toLowerCase();
 
     if (act===state.ans) {
-        return "As "+w.resolvename(message)+" didn't hide the truth, the mirror kept its promise and sent her home.\n\n"+win(message);
+        return "As "+w.resolveName(message)+" didn't hide the truth, the mirror kept its promise and sent her home.\n\n"+win(message);
     } else {
         return "Enraged by obvious lie, the mirror strikes and shatters.\n\n"+lose(message);
     }
@@ -143,14 +142,14 @@ function playEvent3(message) {
     let diff = now-w.taken[uid].gamestart;
 
     if (diff>time) {
-        return w.resolvename(message)+" took too long to dodge and was hurt! ("+diff/1000+"s)"
+        return w.resolveName(message)+" took too long to dodge and was hurt! ("+diff/1000+"s)"
             +"\n\n"+lose(message);
     }
 
     const acts = message.content.replace(p+"do ", "").toLowerCase().split(" ");
 
     if (acts.length != state.length) {
-        return w.resolvename(message)+" dodged the wrong way and was hurt!\n\n"+lose(message);
+        return w.resolveName(message)+" dodged the wrong way and was hurt!\n\n"+lose(message);
     }
 
     for (let i=0;i<state.length;i++) {
@@ -158,10 +157,10 @@ function playEvent3(message) {
             (state[i]=="right" && acts[i]!="a" && acts[i]!="q") ||
             (state[i]=="up" && acts[i]!="s") ||
             (state[i]=="down" && acts[i]!="w" && acts[i]!="z"))
-        return w.resolvename(message)+" dodged the wrong way and was hurt!\n\n"+lose(message);
+            return w.resolveName(message)+" dodged the wrong way and was hurt!\n\n"+lose(message);
     }
 
-    return w.resolvename(message)+" successfully escaped the situation!\n\n"+win(message);
+    return w.resolveName(message)+" successfully escaped the situation!\n\n"+win(message);
 }
 
 function prepareEvent2(uid, embed) {
@@ -187,7 +186,7 @@ function prepareEvent2(uid, embed) {
 }
 
 function prepareEvent3(uid, embed) {
-    embed.addField("­",event3enemyText());
+    embed.addField("­", texts.event3enemy());
 
     let a = event3attacks();
     let now = new Date().getTime();
@@ -322,40 +321,16 @@ function event3attacks() {
     return r;
 }
 
-function event3enemyText() {
-    const a = [
-        "A massive arachnid beast approaches her to strike. Its legs strike from:",
-        "A violent monster spots her and goes for the kill. It attacks from:",
-        "A predator smells her fear and confusion and jumps at her. It tries to bite from:",
-        "A deranged human shouts \"Intruder!\" and lunges at her with a spear. The stabs come from:"
-    ];
-
-    return h.random(a);
-}
-
 Array.prototype.diff = function(a) {
     return this.filter(function(i) {return a.indexOf(i) < 0;});
 };
-
-function locationText(message) {
-    const a = [
-        w.resolvename(message)+" finds herself inside an ancient pyramid.",
-        w.resolvename(message)+" is transported to a darkened, burnt forest.",
-        "Suddenly, the floor below "+w.resolvename(message)+"'s feet changes. She looks around and notices she's in a hallway of an empty palace.",
-        w.resolvename(message)+" notices the sky becoming purple, her surroundings blurry and moving of their own accord. Is this some kind of dream?",
-        "Looks like "+w.resolvename(message)+" was taken to the peak of a rocky mountain.",
-        w.resolvename(message)+" realises she's in some sort of hostile, turbulent and digital environment. The floor and walls are made of grids and pixels."
-    ];
-
-    return h.random(a);
-}
 
 function isAsleep(uid, message) {
     const now = new Date().getTime();
 	
     if (now-w.taken[uid].lastsleep<sleepduration) {
         let end = w.taken[uid].lastsleep+sleepduration;
-        let msg = sleepingText(message)+" (wait " +h.timeDiffToString(end,now)+")";
+        let msg = texts.sleeping(w.resolveNameDirect(message))+" (wait " +h.timeDiffToString(end,now)+")";
         return {asleep: true, message: msg};
     }
     return {asleep: false};
@@ -369,17 +344,6 @@ function xpToLevel(uid) {
         lvl++;
     }
     return {level: lvl, tonext: total-w.taken[uid].xp};
-}
-
-function sleepingText(message) {
-    const a = [
-        "Sssshh... "+w.resolvenamef(message)+" looks really cute when she sleeps. Let's not disturb her.",
-        "It looks like "+w.resolvenamef(message)+" is having a good dream. Let's back away quietly.",
-        w.resolvenameF(message)+" is still resting, looking really comfortable. Come back later!",
-        w.resolvenameF(message)+"'s eyes flutter, she twitches a little, whispers a word, but she's sound asleep nonetheless. Let her sleep some more."
-    ];
-
-    return h.random(a);     
 }
 
 module.exports = {

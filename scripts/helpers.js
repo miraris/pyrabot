@@ -54,9 +54,7 @@ const prettyNumber = (n) => {
  * @param str
  * @returns {string}
  */
-const capitalize = (str) => {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-};
+const capitalize = (str) =>  str.charAt(0).toUpperCase() + str.slice(1);
 
 /**
  * Returns a random element from an array
@@ -65,6 +63,13 @@ const capitalize = (str) => {
  */
 const random = (arr) => arr[randomInt(0,arr.length-1)];
 
+/**
+ * Converts number to a scale of 5
+ *
+ * @param {number} n
+ */
+const numToScale = (n) => `${Math.floor(n/20)}/5`;
+
 module.exports = {
     fromOwner,
     prettyNumber,
@@ -72,7 +77,8 @@ module.exports = {
     capitalize,
     randomInt,
     arrayDiff,
-    random
+    random,
+    numToScale
 };
 
 /**

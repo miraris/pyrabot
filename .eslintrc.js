@@ -8,9 +8,13 @@ module.exports = {
         "ecmaVersion": 2018
     },
     "rules": {
+        "no-console": 0,
         "indent": [
             "error",
-            4
+            4,
+            {
+                "SwitchCase": 1 // Indent case
+            }
         ],
         "linebreak-style": [
             "error",
