@@ -32,16 +32,21 @@ const traitcooldown = 3*60*1000;
 
 console.log("Waifus: loading.");
 
+function getWaifuName (message) {
+    return (taken[message.author.id.toString()].name !== "-")
+        ? taken[message.author.id.toString()].name
+        : `${message.author.username}'s waifu`;
+}
+
 /**
  * Idk, third party waifu name
  *
  * @param {object} message Discord.js message object
+ * @param {boolean} capitalize Whether to capitalize this resolved name
  * @returns {string}
  */
-function resolveName(message) {
-    return (taken[message.author.id.toString()].name !== "-")
-        ? taken[message.author.id.toString()].name
-        : `${message.author.username}'s waifu`;
+function resolveName(message, capitalize = false) {
+    return capitalize ? getWaifuName(message) : h.capitalize(getWaifuName(message));
 }
 
 /**
@@ -588,7 +593,7 @@ function trait(message) {
 
     if (traits.includes(text)) {
         taken[message.author.id.toString()].trait = h.capitalize(text);
-        let res = `${resolveName(message)} now has the trait ${h.capitalize(text)}.`;
+        let res = `${resolveName(message, true)} now has the trait ${h.capitalize(text)}.`;
         if (taken[message.author.id.toString()].cl!="-") {
             taken[message.author.id.toString()].cl = "-";
             res += " Her class has been reset.";
