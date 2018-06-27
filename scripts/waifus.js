@@ -46,7 +46,7 @@ function getWaifuName (message) {
  * @returns {string}
  */
 function resolveName(message, capitalize = false) {
-    return capitalize ? getWaifuName(message) : h.capitalize(getWaifuName(message));
+    return capitalize ? h.capitalize(getWaifuName(message)) : getWaifuName(message);
 }
 
 /**
